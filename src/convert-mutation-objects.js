@@ -6,13 +6,24 @@ import { SEPARATOR } from './utils/const';
 /**
  * 检测mutationObject对象必填的字段
  * @param {string} mutationObject 参考下面convertMutationsObject的注释
- * @param {string} field 字段名
+ * @param {string | array} field 字段名，如果是数组，那么第一个默认使用的，其他的是别名
  */
 function checkMutationObjectField(mutationObject, field) {
+  let defaultField = field;
+  if (Array.isArray(field)) {
+    defaultField = field[0];
+    let tempField;
+    field.forEach(f => {
+      if (mutationObject[tempField] === undefined) {
+        tempField = f;
+      }
+    });
+    field = tempField;
+  }
   if (mutationObject[field] === undefined) {
     throw new Error(
       `
-      mutationObject or mutationObject() ${field} must be defined.For example:
+      mutationObject or mutationObject() ${defaultField} must be defined.For example:
         function(){
           return {
             namespace: 'test',
@@ -45,6 +56,13 @@ function mutationObjectAdapter(mutationObject) {
   }
   return mutationObject;
 }
+
+const randomString = () =>
+  Math.random()
+    .toString(36)
+    .substring(7)
+    .split('')
+    .join('.');
 
 /**
  * 转换多个mutationObject结构
@@ -116,7 +134,13 @@ export default function convertMutationsObjects(
       return reducersAndCenters;
     },
     {
-      reducer: {},
+      reducer: {
+        //reducer为空的时候会提示错误，传递一个reducer
+        //可以消除错误提示。
+        [randomString()]: function() {
+          return null;
+        },
+      },
       centers: [],
     }
   );
@@ -158,7 +182,7 @@ export function convertMutationsObject(mutationObject, combineCenters) {
   if (initialState === undefined) {
     initialState = mutationObject.state;
   }
-  checkMutationObjectField(mutationObject, 'initialState');
+  checkMutationObjectField(mutationObject, ['initialState', 'state']);
   const reducersObject = mutationObject.reducers || {};
   const centersObject = mutationObject.centers || {};
 
