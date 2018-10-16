@@ -78,8 +78,21 @@ function createBasicMutationStore(createStore) {
     }
     const store = createStore(reducer, preloadedState, enhancer);
     return {
+      replaceReducerAndCenters: createReplaceReducerAndCenters(
+        store.replaceReducer,
+        centerInstance.replaceCenters
+      ),
       ...store,
     };
+  };
+}
+function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
+  //热替换或动态加载中使用
+  return reducerAndCenters => {
+    const reducer = reducerAndCenters.reducer;
+    const centers = reducerAndCenters.centers;
+    replaceReducer(reducer);
+    replaceCenters(centers);
   };
 }
 const createStore = createBasicMutationStore(createReduxStore);
