@@ -8,7 +8,8 @@ import {
   compose,
   __DO_NOT_USE__ActionTypes,
 } from './basic';
-import convertMutationObjects from 'redux-mutation/lib/convert-mutation-objects';
+import convertMutationObjects from './convert-mutation-objects';
+// import isPlainObject from './utils/isPlainObject';
 
 /**
  * 创建经过修改后的createStore
@@ -23,14 +24,32 @@ function createMutationStore(createStore) {
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
    */
   return (mutationObjects, preloadedState, enhancer) => {
+    let reducerAndCenters;
+    if (typeof mutationObjects === 'function') {
+      reducerAndCenters = mutationObjects;
+    } else {
+      reducerAndCenters = convertMutationObjects(
+        mutationObjects,
+        combineCenters
+      );
+    }
+    const store = createStore(reducerAndCenters, preloadedState, enhancer);
+    return {
+      replaceMutationObjects: createReplaceMutationObjects(
+        store.replaceReducerAndCenters
+      ),
+      ...store,
+    };
+  };
+}
+function createReplaceMutationObjects(replaceReducerAndCenters) {
+  //热替换或动态加载中使用
+  return mutationObjects => {
     const reducerAndCenters = convertMutationObjects(
       mutationObjects,
       combineCenters
     );
-    const store = createStore(reducerAndCenters, preloadedState, enhancer);
-    return {
-      ...store,
-    };
+    replaceReducerAndCenters(reducerAndCenters);
   };
 }
 const createStore = createMutationStore(createBasicMutationStore);
