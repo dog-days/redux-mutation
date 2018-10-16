@@ -1,0 +1,106 @@
+{
+  "version": "0.0.1",
+  "name": "redux-mutation",
+  "main": "lib/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "cross-env": "^5.1.1",
+    "husky": "^1.0.0-rc.4",
+    "lint-staged": "^7.1.0",
+    "prettier": "^1.13.2",
+    "react": "^15.4.1",
+    "react-boilerplate-app-scripts": "^0.2.11",
+    "react-dom": "^15.4.1",
+    "react-redux": "^5.0.7",
+    "redux": "^4.0.1",
+    "redux-center": "0.0.1"
+  },
+  "scripts": {
+    "build-demo": "npm run build-dll hide-message && react-boilerplate-app-scripts build",
+    "build-dll": "react-boilerplate-app-scripts build-dll",
+    "cover": "react-boilerplate-app-scripts cover",
+    "serve-build": "react-boilerplate-app-scripts serve-build",
+    "start": "npm run build-dll hide-message && react-boilerplate-app-scripts start",
+    "use": "react-boilerplate-app-scripts use",
+    "build-publish": "npm run test && npm run transform && npm publish",
+    "prettier": "prettier --write './**/*(*.js|*.jsx|*.less|*.css)'",
+    "transform": "npm run transform-es && npm run transform-default",
+    "transform-es": "rm -rf es && cross-env BABEL_ENV=es babel ./src -d es",
+    "transform-es-watch": "cross-env BABEL_ENV=es babel ./src -d es -w",
+    "transform-default": "rm -rf ./lib && cross-env BABEL_ENV=production babel ./src -d lib",
+    "transform-default-watch": "cross-env BABEL_ENV=default babel ./src -d lib -w"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  },
+  "lint-staged": {
+    "*.js|*.jsx": [
+      "eslint"
+    ],
+    "*.js|*.jsx|*.less|*.css": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "react-boilerplate-app-scripts": {
+    "appSrcPath": "demo/src",
+    "appPublicPath": "demo/public"
+  },
+  "babel": {
+    "env": {
+      "development": {
+        "presets": [
+          "react",
+          [
+            "es2015",
+            {
+              "modules": false
+            }
+          ],
+          "stage-0"
+        ],
+        "plugins": [
+          "transform-decorators-legacy",
+          "transform-runtime",
+          "react-hot-loader/babel"
+        ]
+      },
+      "production": {
+        "plugins": [
+          "transform-decorators-legacy",
+          "transform-runtime"
+        ],
+        "presets": [
+          "react",
+          "es2015",
+          "stage-0"
+        ]
+      },
+      "es": {
+        "plugins": [
+          "transform-decorators-legacy",
+          "transform-runtime"
+        ],
+        "presets": [
+          "react",
+          [
+            "es2015",
+            {
+              "modules": false
+            }
+          ],
+          "stage-0"
+        ]
+      }
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}
