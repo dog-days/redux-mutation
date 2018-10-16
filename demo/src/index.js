@@ -3,6 +3,7 @@ import { createStore, compose, applyMiddleware } from 'redux-mutation';
 const mutationObjects = [
   function() {
     return {
+      //state: 0,也可以
       initialState: 0,
       namespace: 'counter',
       reducers: {
@@ -17,32 +18,40 @@ const mutationObjects = [
   },
   {
     namespace: 'tester',
-    initialState: 0,
+    //state: null,也可以
+    initialState: null,
     centers: {
       async test(action, { put, call, select }) {
+        console.log('center test');
         await put({ type: 'test2' });
         await put({ type: 'increment' }, 'counter');
-        console.log(await select());
+        console.log(
+          'counter after increment',
+          await select(state => state.counter)
+        );
         await put({ type: 'counter/decrement' });
-        console.log('counter', await select(state => state.counter));
+        console.log(
+          'counter after decrement',
+          await select(state => state.counter)
+        );
         const data = await call(fetch, '/demo.json').then(resonse => {
           return resonse.json();
         });
-        console.log(data);
+        console.log('fetchedData', data);
       },
       *test2(action, { put, call, select }) {
-        console.log('test2');
+        console.log('center test2');
         yield put({ type: 'test3' });
       },
       test3(action, { put, call, select }) {
-        console.log('test3');
+        console.log('center test3');
       },
     },
   },
 ];
 
 const testMiddleware = ({ dispatch, getState }) => next => action => {
-  console.log('testMiddleware');
+  console.log('I am testMiddleware.');
   return next(action);
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -56,8 +65,7 @@ store.subscribe(function() {
   //这样可以避免频繁渲染，集中一次渲染。
   clearTimeout(clearRenderTimeout);
   clearRenderTimeout = setTimeout(function() {
-    console.log('You can render dom here.');
+    console.log('rendered', 'You can render dom here.');
   }, 200);
 });
-// store.dispatch({ type: 'render' });
 store.dispatch({ type: 'tester/test' });
