@@ -108,6 +108,7 @@ const randomString = () =>
  *    }
  *  ]
  * @param {function} combineCenters 请参考redux-center的combineCenters
+ * @param {string} centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
@@ -116,7 +117,8 @@ const randomString = () =>
  */
 export default function convertMutationsObjects(
   mutationObjects,
-  combineCenters
+  combineCenters,
+  { centersAliasName }
 ) {
   if (!Array.isArray(mutationObjects)) {
     mutationObjects = [mutationObjects];
@@ -127,7 +129,8 @@ export default function convertMutationsObjects(
       const namespace = mutationObject.namespace;
       let { reducer, center } = convertMutationsObject(
         mutationObject,
-        combineCenters
+        combineCenters,
+        { centersAliasName }
       );
       reducersAndCenters.reducer[namespace] = reducer;
       reducersAndCenters.centers.push(center);
@@ -163,13 +166,18 @@ export default function convertMutationsObjects(
  *    }
  *  }
  * @param {function} combineCenters 请参考redux-center的combineCenters
+ * @param {string} centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
  *    center: function(action,{ put, call, select, dispatch, getState }){}
  *  }
  */
-export function convertMutationsObject(mutationObject, combineCenters) {
+export function convertMutationsObject(
+  mutationObject,
+  combineCenters,
+  { centersAliasName }
+) {
   mutationObject = mutationObjectAdapter(mutationObject);
   if (combineCenters !== undefined && typeof combineCenters !== 'function') {
     throw new TypeError('combineCenters must be a function.');
@@ -184,7 +192,8 @@ export function convertMutationsObject(mutationObject, combineCenters) {
   }
   checkMutationObjectField(mutationObject, ['initialState', 'state']);
   const reducersObject = mutationObject.reducers || {};
-  const centersObject = mutationObject.centers || {};
+  const centersObject =
+    mutationObject.centers || mutationObject[centersAliasName] || {};
 
   return {
     reducer: (state, action) => {
