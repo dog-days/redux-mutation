@@ -75,7 +75,7 @@ const randomString = () =>
  *        //alias as state
  *        //state : {},
  *        initailState: {},
- *        reducers: {}
+ *        reducers: {},
  *        centers: {}
  *      }
  *    },
@@ -85,7 +85,7 @@ const randomString = () =>
  *        //alias as state
  *        //state : {},
  *        initailState: {},
- *        reducers: {}
+ *        reducers: {},
  *        centers: {}
  *      }
  *    },
@@ -107,40 +107,41 @@ const randomString = () =>
  *      centers: {},
  *    }
  *  ]
- * @param {function} combineCenters 请参考redux-center的combineCenters
- * @param {string} centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
+ * @param {function} options.combineCenters 请参考redux-center的combineCenters
+ * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
  *    centers: function(action,{ put, call, select, dispatch, getState }){}
  *  }
  */
-export default function convertMutationsObjects(
-  mutationObjects,
-  combineCenters,
-  { centersAliasName }
-) {
+export default function convertMutationsObjects(mutationObjects, options) {
   if (!Array.isArray(mutationObjects)) {
     mutationObjects = [mutationObjects];
   }
+  const { centersAliasName, combineCenters } = options;
+  const randomReducerKey = randomString();
   const reducersAndCenters = mutationObjects.reduce(
     function(reducersAndCenters, mutationObject) {
+      if (reducersAndCenters.reducers[randomReducerKey]) {
+        //reucers不为空对象时，删除默认的reducer
+        delete reducersAndCenters.reducers[randomReducerKey];
+      }
       mutationObject = mutationObjectAdapter(mutationObject);
       const namespace = mutationObject.namespace;
-      let { reducer, center } = convertMutationsObject(
-        mutationObject,
+      let { reducer, center } = convertMutationsObject(mutationObject, {
+        centersAliasName,
         combineCenters,
-        { centersAliasName }
-      );
-      reducersAndCenters.reducer[namespace] = reducer;
+      });
+      reducersAndCenters.reducers[namespace] = reducer;
       reducersAndCenters.centers.push(center);
       return reducersAndCenters;
     },
     {
-      reducer: {
-        //reducer为空的时候会提示错误，传递一个reducer
+      reducers: {
+        //reducers为空的时候会提示错误，传递一个reducer
         //可以消除错误提示。
-        [randomString()]: function() {
+        [randomReducerKey]: function() {
           return null;
         },
       },
@@ -148,7 +149,7 @@ export default function convertMutationsObjects(
     }
   );
   return {
-    reducer: combineReducers(reducersAndCenters.reducer),
+    reducer: combineReducers(reducersAndCenters.reducers),
     centers: reducersAndCenters.centers,
   };
 }
@@ -165,20 +166,17 @@ export default function convertMutationsObjects(
  *      centers: {}
  *    }
  *  }
- * @param {function} combineCenters 请参考redux-center的combineCenters
- * @param {string} centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
+ * @param {function} options.combineCenters 请参考redux-center的combineCenters
+ * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
  *    center: function(action,{ put, call, select, dispatch, getState }){}
  *  }
  */
-export function convertMutationsObject(
-  mutationObject,
-  combineCenters,
-  { centersAliasName }
-) {
+function convertMutationsObject(mutationObject, options) {
   mutationObject = mutationObjectAdapter(mutationObject);
+  const { centersAliasName, combineCenters } = options;
   if (combineCenters !== undefined && typeof combineCenters !== 'function') {
     throw new TypeError('combineCenters must be a function.');
   }
@@ -225,7 +223,7 @@ export function convertMutationsObject(
  * @param {object} action redux action
  * @return undefined
  */
-export function obejctFunctionsToOneFunctionByAction(
+function obejctFunctionsToOneFunctionByAction(
   reducerObject,
   { namespace, initialState },
   { state, action }
@@ -267,7 +265,7 @@ export function obejctFunctionsToOneFunctionByAction(
  * @param {object} centerUtils redux-center的cener函数参数 {put,call,select,dispatch,getState}
  * @return undefined
  */
-export function centerFunctionsToOneFunctionByAction(
+function centerFunctionsToOneFunctionByAction(
   centersObject,
   { namespace, combineCenters },
   { action, centerUtils }
@@ -292,13 +290,8 @@ export function centerFunctionsToOneFunctionByAction(
       } else {
         fn(action, { ...centerUtils, put });
       }
-      //匹配到直接终止
-      return;
     }
   }
-  //允许默认redux的dispatch行为，详细请看redux-center
-  //没有匹配到，必须返回
-  return true;
 }
 /**
  * @param {function} originalPut 原来的的center put参数
