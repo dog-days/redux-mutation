@@ -47,7 +47,7 @@ function mutationObjectAdapter(mutationObject) {
   if (typeof mutationObject === 'function') {
     //兼容函数返回plant object，是为了处理创建多个store时（互不相关的组件），起到变量保护作用
     //隔离作用域
-    mutationObject = mutationObject();
+    mutationObject = mutationObject.bind(mutationObject)();
   }
   if (!isPlainObject(mutationObject)) {
     throw new TypeError(
@@ -244,8 +244,8 @@ function obejctFunctionsToOneFunctionByAction(
     }
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
-      //匹配到直接终止
-      return fn(state, action);
+      //转换的时候，需要把fn上下文还原
+      return fn.bind(reducerObject)(state, action);
     }
   }
   //默认使用原来的state
@@ -284,11 +284,16 @@ function centerFunctionsToOneFunctionByAction(
     }
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
+      //转换的时候，需要把context上下文还原
       if (combineCenters) {
-        //参数只有一个center函数。
-        combineCenters(fn)[0](action, { ...centerUtils, put });
+        //转换的时候，需要把fn上下文还原
+        combineCenters(fn)[0].bind(centersObject)(action, {
+          ...centerUtils,
+          put,
+        });
       } else {
-        fn(action, { ...centerUtils, put });
+        //转换的时候，需要把fn上下文还原
+        fn.bind(centersObject)(action, { ...centerUtils, put });
       }
     }
   }
