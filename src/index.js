@@ -1,27 +1,27 @@
 import combineCenters from 'redux-center/lib/combine-centers';
 
 import {
-  createStore as createBasicMutationStore,
   combineReducers,
   bindActionCreators,
   applyMiddleware,
   compose,
   __DO_NOT_USE__ActionTypes,
+  customStore as customBasicStore,
 } from './basic';
 import convertMutationObjects from './convert-mutation-objects';
 // import isPlainObject from './utils/isPlainObject';
 
 /**
  * 创建经过修改后的createStore
- * @param {functon} createStore
+ * @param {object} options 配置项，centers配置和convertMutationObjects配置
  * @param {object} 配置centersAliasName等
  * @return {object} ...createStore(...args)，返回的值跟redux createStore的是一致的。
  */
-function createMutationStore(createStore, options) {
+function customStore(options) {
   if (!options) {
     options = {};
   }
-  const { centersAliasName } = options;
+  const { centersAliasName, ...centerOptions } = options;
   /**
    * @param {object} mutationObjects 请看文件conver-mutation-object.js注释
    * @param preloadedState 跟redux的createStore的一样，没做修改
@@ -33,13 +33,16 @@ function createMutationStore(createStore, options) {
     if (typeof mutationObjects === 'function') {
       reducerAndCenters = mutationObjects;
     } else {
-      reducerAndCenters = convertMutationObjects(
-        mutationObjects,
+      reducerAndCenters = convertMutationObjects(mutationObjects, {
         combineCenters,
-        { centersAliasName }
-      );
+        centersAliasName,
+      });
     }
-    const store = createStore(reducerAndCenters, preloadedState, enhancer);
+    const store = customBasicStore(centerOptions)(
+      reducerAndCenters,
+      preloadedState,
+      enhancer
+    );
     return {
       replaceMutationObjects: createReplaceMutationObjects(
         store.replaceReducerAndCenters,
@@ -55,22 +58,15 @@ function createReplaceMutationObjects(
 ) {
   //热替换或动态加载中使用
   return mutationObjects => {
-    const reducerAndCenters = convertMutationObjects(
-      mutationObjects,
+    const reducerAndCenters = convertMutationObjects(mutationObjects, {
+      centersAliasName,
       combineCenters,
-      { centersAliasName }
-    );
+    });
     replaceReducerAndCenters(reducerAndCenters);
   };
 }
-const createStore = createMutationStore(createBasicMutationStore);
-/**
- * 自定义createStore，目前只有定制centerAliasName
- * @param {...any} args
- */
-const customStore = function(...args) {
-  return createMutationStore(createBasicMutationStore, ...args);
-};
+const createStore = customStore();
+
 export {
   createStore,
   combineReducers,
