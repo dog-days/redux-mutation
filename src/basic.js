@@ -17,10 +17,10 @@ import isPlainObject from './utils/isPlainObject';
 
 /**
  * 创建经过修改后的createStore
- * @param {functon} createStore
+ * @param {object} options 配置项，目前只有centers配置
  * @return {object} ...createStore(...args)，返回的值跟redux createStore的是一致的。
  */
-function createBasicMutationStore(createStore) {
+function customStore(options) {
   /**
    * @param {object} reducerAndCenters 整合了reducers和centers，也可以直接当做reducer，格式如下
    *  {
@@ -66,7 +66,8 @@ function createBasicMutationStore(createStore) {
         `
       );
     }
-    const centerInstance = createCenter(centers);
+    let { ...centerOptions } = options;
+    const centerInstance = createCenter(centers, centerOptions);
     const centerMiddleware = centerInstance.createCenterMiddleware();
     if (!enhancer) {
       enhancer = applyMiddleware(centerMiddleware);
@@ -76,7 +77,7 @@ function createBasicMutationStore(createStore) {
         enhancer
       );
     }
-    const store = createStore(reducer, preloadedState, enhancer);
+    const store = createReduxStore(reducer, preloadedState, enhancer);
     return {
       replaceReducerAndCenters: createReplaceReducerAndCenters(
         store.replaceReducer,
@@ -95,7 +96,7 @@ function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
     replaceCenters(centers);
   };
 }
-const createStore = createBasicMutationStore(createReduxStore);
+const createStore = customStore();
 export {
   createStore,
   combineReducers,
@@ -103,4 +104,5 @@ export {
   applyMiddleware,
   compose,
   __DO_NOT_USE__ActionTypes,
+  customStore,
 };
