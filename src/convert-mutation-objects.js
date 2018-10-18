@@ -23,36 +23,26 @@ function checkMutationObjectField(mutationObject, field) {
   if (mutationObject[field] === undefined) {
     throw new Error(
       `
-      mutationObject or mutationObject() ${defaultField} must be defined.For example:
-        function(){
-          return {
-            namespace: 'test',
-            //initailState alias as state
-            //state : {},
-            initailState: 'state',
-            reducers: {},
-            centers: {}
-          }
+        mutationObject ${defaultField} must be defined.For example:
+        {
+          namespace: 'test',
+          //initailState alias as state
+          //state : {},
+          initailState: 'state',
+          reducers: {},
+          centers: {}
         }
       `
     );
   }
 }
 /**
- * mutationObject类型适配
- * @param {object | function} mutationObject
- * @return {object} mutationObject
+ * 检测mutationObject类型
+ * @param {object} mutationObject
  */
-function mutationObjectAdapter(mutationObject) {
-  if (typeof mutationObject === 'function') {
-    //兼容函数返回plant object，是为了处理创建多个store时（互不相关的组件），起到变量保护作用
-    //隔离作用域
-    mutationObject = mutationObject.bind(mutationObject)();
-  }
+function checkMutationObjectVariableType(mutationObject) {
   if (!isPlainObject(mutationObject)) {
-    throw new TypeError(
-      'mutationObject or mutationObject() must be an plain object.'
-    );
+    throw new TypeError('mutationObject or must be an plain object.');
   }
   return mutationObject;
 }
@@ -65,32 +55,52 @@ const randomString = () =>
     .join('.');
 
 /**
+ * 验证namespace是否重复
+ * 验证所有reducers和centers的属性名是否重复，重复则抛出异常
+ * @param {...object} mutationObjects
+ */
+function checkMutationObjects(mutationObjects) {
+  //存放所有namepsace
+  const allNamespace = {};
+  //存放所有reducers和centers的property
+  const allReducersCentersKey = {};
+  mutationObjects.forEach(mutationObject => {
+    checkMutationObjectVariableType(mutationObject);
+    if (allNamespace[mutationObject.namespace]) {
+      throw new Error(`The namespace "${mutationObject.namespace}" is exited.`);
+    } else {
+      allNamespace[mutationObject.namespace] = true;
+    }
+    function throwRducersCentersError(field) {
+      throw new Error(
+        `reducers[property] and centers[property] should be unique.\r\nThe namespace is "${
+          mutationObject.namespace
+        }".And the property is "${field}".`
+      );
+    }
+    const reducers = mutationObject.reducers;
+    for (let reducersKey in reducers) {
+      if (allReducersCentersKey[reducersKey]) {
+        throwRducersCentersError(reducersKey);
+      } else {
+        allReducersCentersKey[reducersKey] = true;
+      }
+    }
+    const centers = mutationObject.centers;
+    for (let centersKey in centers) {
+      if (allReducersCentersKey[centersKey]) {
+        throwRducersCentersError(centersKey);
+      } else {
+        allReducersCentersKey[centersKey] = true;
+      }
+    }
+  });
+}
+
+/**
  * 转换多个mutationObject结构
  * namespace其实就是reducer名
- * @param {...function | ...object} mutationObjects
- *  [
- *    function(){
- *      return {
- *        namespace: 'test',
- *        //alias as state
- *        //state : {},
- *        initailState: {},
- *        reducers: {},
- *        centers: {}
- *      }
- *    },
- *    function(){
- *      return {
- *        namespace: 'test2',
- *        //alias as state
- *        //state : {},
- *        initailState: {},
- *        reducers: {},
- *        centers: {}
- *      }
- *    },
- *  ]
- *  或者
+ * @param {...object} mutationObjects
  *  [
  *    {
  *      namespace: 'test',
@@ -119,6 +129,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
   if (!Array.isArray(mutationObjects)) {
     mutationObjects = [mutationObjects];
   }
+  checkMutationObjects(mutationObjects);
   const { centersAliasName, combineCenters } = options;
   const randomReducerKey = randomString();
   const reducersAndCenters = mutationObjects.reduce(
@@ -127,7 +138,6 @@ export default function convertMutationsObjects(mutationObjects, options) {
         //reucers不为空对象时，删除默认的reducer
         delete reducersAndCenters.reducers[randomReducerKey];
       }
-      mutationObject = mutationObjectAdapter(mutationObject);
       const namespace = mutationObject.namespace;
       let { reducer, center } = convertMutationsObject(mutationObject, {
         centersAliasName,
@@ -155,17 +165,15 @@ export default function convertMutationsObjects(mutationObjects, options) {
 }
 /**
  * 转换单个mutationObject结构
- * @param {object | function} mutationObject  结构如下
- *  function(){
- *    return {
- *      namespace: 'test',
- *      //alias as state
- *      //state : {},
- *      initailState: {},
- *      reducers: {}
- *      centers: {}
- *    }
- *  }
+ * @param {object} mutationObject  结构如下
+ *   {
+ *     namespace: 'test',
+ *     //alias as state
+ *     //state : {},
+ *     initailState: {},
+ *     reducers: {}
+ *     centers: {}
+ *   }
  * @param {function} options.combineCenters 请参考redux-center的combineCenters
  * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @return {object} {reducer,centers} 结构如下
@@ -175,7 +183,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
  *  }
  */
 function convertMutationsObject(mutationObject, options) {
-  mutationObject = mutationObjectAdapter(mutationObject);
+  checkMutationObjectVariableType(mutationObject);
   const { centersAliasName, combineCenters } = options;
   if (combineCenters !== undefined && typeof combineCenters !== 'function') {
     throw new TypeError('combineCenters must be a function.');
