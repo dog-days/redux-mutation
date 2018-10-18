@@ -287,7 +287,7 @@ function centerFunctionsToOneFunctionByAction(
       //转换的时候，需要把context上下文还原
       if (combineCenters) {
         //转换的时候，需要把fn上下文还原
-        combineCenters(fn)[0].bind(centersObject)(action, {
+        combineCenters(fn.bind(centersObject))[0](action, {
           ...centerUtils,
           put,
         });
