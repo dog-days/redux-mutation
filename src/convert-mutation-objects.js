@@ -23,7 +23,7 @@ function checkMutationObjectField(mutationObject, field) {
   if (mutationObject[field] === undefined) {
     throw new Error(
       `
-        mutationObject ${defaultField} must be defined.For example:
+        Expect mutationObject[${defaultField}] be defined.For example:
         {
           namespace: 'test',
           //initailState alias as state
@@ -42,7 +42,7 @@ function checkMutationObjectField(mutationObject, field) {
  */
 function checkMutationObjectVariableType(mutationObject) {
   if (!isPlainObject(mutationObject)) {
-    throw new TypeError('mutationObject or must be an plain object.');
+    throw new TypeError('Expect mutationObject to be an plain object.');
   }
   return mutationObject;
 }
@@ -186,16 +186,11 @@ function convertMutationsObject(mutationObject, options) {
   checkMutationObjectVariableType(mutationObject);
   const { centersAliasName, combineCenters } = options;
   if (combineCenters !== undefined && typeof combineCenters !== 'function') {
-    throw new TypeError('combineCenters must be a function.');
+    throw new TypeError('Expect combineCenters to be a function.');
   }
   const namespace = mutationObject.namespace;
   checkMutationObjectField(mutationObject, 'namespace');
-  //兼容state，推荐使用initialState
-  //初始化state
-  let initialState = mutationObject.initialState;
-  if (initialState === undefined) {
-    initialState = mutationObject.state;
-  }
+
   checkMutationObjectField(mutationObject, ['initialState', 'state']);
   const reducersObject = mutationObject.reducers || {};
   const centersObject =
@@ -203,9 +198,19 @@ function convertMutationsObject(mutationObject, options) {
 
   return {
     reducer: (state, action) => {
-      return obejctFunctionsToOneFunctionByAction(
+      //兼容state，推荐使用initialState
+      //初始化state
+      let initialState = mutationObject.initialState;
+      if (initialState === undefined) {
+        initialState = mutationObject.state;
+      }
+      if (state === undefined) {
+        state = initialState;
+      }
+      // console.log(action, initialState, state, namespace);
+      return recducersFunctionsToOneFunctionByAction(
         reducersObject,
-        { namespace, initialState },
+        { namespace },
         { state, action }
       );
     },
@@ -231,14 +236,11 @@ function convertMutationsObject(mutationObject, options) {
  * @param {object} action redux action
  * @return undefined
  */
-function obejctFunctionsToOneFunctionByAction(
+function recducersFunctionsToOneFunctionByAction(
   reducerObject,
-  { namespace, initialState },
+  { namespace },
   { state, action }
 ) {
-  if (state === undefined) {
-    state = initialState;
-  }
   for (let key in reducerObject) {
     if (!!~key.indexOf(SEPARATOR)) {
       throw new TypeError(
@@ -324,7 +326,7 @@ function createNewPut(originalPut, namespace) {
   return function(action, replaceNamespace) {
     const actionType = action.type;
     if (typeof actionType !== 'string') {
-      throw new TypeError('action.type must be a string.');
+      throw new TypeError('Expect action.type to be a string.');
     }
     let lastNamespace = replaceNamespace || namespace;
     if (actionType.indexOf(`${namespace}${SEPARATOR}`) === 0) {
