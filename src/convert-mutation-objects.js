@@ -208,14 +208,14 @@ function convertMutationsObject(mutationObject, options) {
         state = initialState;
       }
       // console.log(action, initialState, state, namespace);
-      return recducersFunctionsToOneFunctionByAction(
+      return recducersFunctionsToOneFunctionByAction.bind(mutationObject)(
         reducersObject,
         { namespace },
         { state, action }
       );
     },
     center: (action, centerUtils) => {
-      return centerFunctionsToOneFunctionByAction(
+      return centerFunctionsToOneFunctionByAction.bind(mutationObject)(
         centersObject,
         { namespace, combineCenters },
         { action, centerUtils }
@@ -255,7 +255,7 @@ function recducersFunctionsToOneFunctionByAction(
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
       //转换的时候，需要把fn上下文还原
-      return fn.bind(reducerObject)(state, action);
+      return fn.bind(this)(state, action);
     }
   }
   //默认使用原来的state
@@ -297,13 +297,13 @@ function centerFunctionsToOneFunctionByAction(
       //转换的时候，需要把context上下文还原
       if (combineCenters) {
         //转换的时候，需要把fn上下文还原
-        combineCenters(fn.bind(centersObject))[0](action, {
+        combineCenters(fn.bind(this))[0](action, {
           ...centerUtils,
           put,
         });
       } else {
         //转换的时候，需要把fn上下文还原
-        fn.bind(centersObject)(action, { ...centerUtils, put });
+        fn.bind(this)(action, { ...centerUtils, put });
       }
     }
   }
