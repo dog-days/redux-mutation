@@ -298,15 +298,18 @@ function centerFunctionsToOneFunctionByAction(
       //转换的时候，需要把context上下文还原
       if (combineCenters) {
         //转换的时候，需要把fn上下文还原
-        combineCenters(fn.bind(this))[0](action, {
+        return combineCenters(fn.bind(this))[0](action, {
           ...centerUtils,
           put,
         });
       } else {
         //转换的时候，需要把fn上下文还原
-        fn.bind(this)(action, { ...centerUtils, put });
+        return fn.bind(this)(action, { ...centerUtils, put });
       }
     }
+    //center配置shouldRunReducer=false，就必须返回true
+    //return true不影响shouldRunReducer=true，统一返回true；
+    return true;
   }
 }
 /**
