@@ -9,6 +9,7 @@ import {
   customStore as customBasicStore,
 } from './basic';
 import convertMutationObjects from './convert-mutation-objects';
+import functionsToAnys from './functions-to-anys';
 import isPlainObject from './utils/isPlainObject';
 
 /**
@@ -24,7 +25,7 @@ function customStore(options) {
   const mutationObjectByNamespace = {};
   /**
    * 按照namespace的方式存放到mutationObjectByNamespace
-   * @param {...object} mutationObjects 请看文件conver-mutation-object.js注释
+   * @param {object | ...object | ...function} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
    */
   function setMutationObjectByNamespace(mutationObjects = {}) {
     if (!Array.isArray(mutationObjects)) {
@@ -46,9 +47,14 @@ function customStore(options) {
    */
   return (mutationObjects, preloadedState, enhancer) => {
     let reducerAndCenters;
+    let onlyOrinalReducer = false;
     if (typeof mutationObjects === 'function') {
+      //mutationObjects是redux reducer格式
+      //即function(state,action)
+      onlyOrinalReducer = true;
       reducerAndCenters = mutationObjects;
     } else {
+      mutationObjects = functionsToAnys(mutationObjects);
       setMutationObjectByNamespace(mutationObjects);
       reducerAndCenters = convertMutationObjects(mutationObjects, {
         combineCenters,
@@ -63,7 +69,12 @@ function customStore(options) {
     return {
       replaceMutationObjects: createReplaceMutationObjects(
         store.replaceReducerAndCenters,
-        { centersAliasName, mutationObjectByNamespace }
+        {
+          store,
+          onlyOrinalReducer,
+          centersAliasName,
+          mutationObjectByNamespace,
+        }
       ),
       ...store,
     };
@@ -71,21 +82,25 @@ function customStore(options) {
 }
 /**
  * @param {object} replaceReducerAndCenters 请查看./basic.js的相关注释
+ * @param {object} options.store redux store实例
+ * @param {object} options.onlyOrinalReducer mutationObjects的格式是redux的reducer格式
  * @param {object} options.mutationObjectByNamespace mutationObject的namespace为key的对象
  * @returns {function} replaceMutationObjects函数
  */
 function createReplaceMutationObjects(
   replaceReducerAndCenters,
-  { centersAliasName, mutationObjectByNamespace }
+  { store, onlyOrinalReducer, centersAliasName, mutationObjectByNamespace }
 ) {
   //热替换或动态加载中使用
   /**
-   * @param {object | ...object} newMutationObjects 可以是单个mutationObject，也可以是多个mutationObject
+   * 可替换单个和多个
+   * @param {object | ...object | ...function} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
    */
   return function(newMutationObjects) {
-    if (!Array.isArray(newMutationObjects)) {
-      newMutationObjects = [newMutationObjects];
+    if (onlyOrinalReducer) {
+      return store.replaceReducer(newMutationObjects);
     }
+    newMutationObjects = functionsToAnys(newMutationObjects);
     // console.log(newMutationObjects);
     newMutationObjects.forEach(mutationObject => {
       if (!isPlainObject(mutationObject)) {
@@ -101,6 +116,12 @@ function createReplaceMutationObjects(
             mutationObject.namespace
           }" of mutationObject will be replaced,and the new "initialState" will lose efficacy because it has been initialized.`
         );
+        //因为initialState无效，所以可以不定义。
+        //这一步其实，可以不用getState，只要赋值不是undefined就行
+        //下面为了对其上一个已经运行reducer后返回的state值。
+        mutationObject.initialState = store.getState()[
+          mutationObject.namespace
+        ];
       }
       mutationObjectByNamespace[mutationObject.namespace] = mutationObject;
     });
