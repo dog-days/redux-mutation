@@ -130,7 +130,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
     mutationObjects = [mutationObjects];
   }
   checkMutationObjects(mutationObjects);
-  const { centersAliasName, combineCenters } = options;
+  const { centersAliasName = 'effects', combineCenters } = options;
   const randomReducerKey = randomString();
   const reducersAndCenters = mutationObjects.reduce(
     function(reducersAndCenters, mutationObject) {
@@ -208,6 +208,7 @@ function convertMutationsObject(mutationObject, options) {
         state = initialState;
       }
       // console.log(action, initialState, state, namespace);
+      //bind是为了后续覆盖reducers和centers的上下问题
       return recducersFunctionsToOneFunctionByAction.bind(mutationObject)(
         reducersObject,
         { namespace },
