@@ -124,7 +124,7 @@ function checkMutationObjects(mutationObjects) {
  *      centers: {},
  *    }
  *  ]
- * @param {function} options.combineCenters 请参考redux-center的combineCenters
+ * @param {function} options.generatorsToAsync 请参考redux-center的generatorsToAsync
  * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @param {string} options.reducerEnhancer 增强reducer，结构如下：
  *  function(originalReducer){
@@ -160,7 +160,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
   checkMutationObjects(mutationObjects);
   const {
     centersAliasName = 'effects',
-    combineCenters,
+    generatorsToAsync,
     reducerEnhancer = function(originalReducer) {
       return (...args) => {
         return originalReducer(...args);
@@ -182,7 +182,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
       const namespace = mutationObject.namespace;
       let { reducer, center } = convertMutationsObject(mutationObject, {
         centersAliasName,
-        combineCenters,
+        generatorsToAsync,
       });
       reducersAndCenters.reducers[namespace] = reducer;
       reducersAndCenters.centers[namespace] = {
@@ -249,7 +249,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
  *     reducers: {}
  *     centers: {}
  *   }
- * @param {function} options.combineCenters 请参考redux-center的combineCenters
+ * @param {function} options.generatorsToAsync 请参考redux-center的generatorsToAsync
  * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
  * @return {object} {reducer,centers} 结构如下
  *  {
@@ -259,9 +259,12 @@ export default function convertMutationsObjects(mutationObjects, options) {
  */
 function convertMutationsObject(mutationObject, options) {
   checkMutationObjectVariableType(mutationObject);
-  const { centersAliasName, combineCenters } = options;
-  if (combineCenters !== undefined && typeof combineCenters !== 'function') {
-    throw new TypeError('Expect combineCenters to be a function.');
+  const { centersAliasName, generatorsToAsync } = options;
+  if (
+    generatorsToAsync !== undefined &&
+    typeof generatorsToAsync !== 'function'
+  ) {
+    throw new TypeError('Expect generatorsToAsync to be a function.');
   }
   const namespace = mutationObject.namespace;
   checkMutationObjectField(mutationObject, 'namespace');
@@ -294,7 +297,7 @@ function convertMutationsObject(mutationObject, options) {
       checkActionType(action);
       return await centerFunctionsToOneFunctionByAction.bind(mutationObject)(
         centersObject,
-        { namespace, combineCenters },
+        { namespace, generatorsToAsync },
         { action, centerUtils }
       );
     },
@@ -352,14 +355,14 @@ function recducersFunctionsToOneFunctionByAction(
  *   test2{}
  * }
  * @param {string} namespace 命名空间，相当于reducer函数名
- * @param {function} combineCenters 请参考redux-center的combineCenters
+ * @param {function} generatorsToAsync 请参考redux-center的generatorsToAsync
  * @param {object} action redux action
  * @param {object} centerUtils redux-center的cener函数参数 {put,call,select,dispatch,getState}
  * @return {any}
  */
 async function centerFunctionsToOneFunctionByAction(
   centersObject,
-  { namespace, combineCenters },
+  { namespace, generatorsToAsync },
   { action, centerUtils }
 ) {
   const put = createNewPut(centerUtils.put, namespace);
@@ -377,9 +380,9 @@ async function centerFunctionsToOneFunctionByAction(
     }
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
-      if (combineCenters) {
+      if (generatorsToAsync) {
         //转换的时候，绑定fn上下文为mutationObject
-        return await combineCenters(fn.bind(this))[0](action, {
+        return await generatorsToAsync(fn.bind(this))[0](action, {
           ...centerUtils,
           put,
         });
