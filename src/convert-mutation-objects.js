@@ -3,6 +3,13 @@ import { combineReducers } from 'redux';
 import isPlainObject from './utils/isPlainObject';
 import { SEPARATOR } from './utils/const';
 
+function checkActionType(action) {
+  if (typeof action.type !== 'string') {
+    throw new TypeError(
+      `Expect action.type to be a string.But the action.type is ${action.type}.`
+    );
+  }
+}
 /**
  * 检测mutationObject对象必填的字段
  * @param {string} mutationObject 参考下面convertMutationsObject的注释
@@ -119,6 +126,27 @@ function checkMutationObjects(mutationObjects) {
  *  ]
  * @param {function} options.combineCenters 请参考redux-center的combineCenters
  * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
+ * @param {string} options.reducerEnhancer 增强reducer，结构如下：
+ *  function(originalReducer){
+ *    return (state,action)=>{
+ *      //注意这里的state是，store.getState()后的值，整个store的值
+ *      switch(action.type){
+ *        //这里进行一些处理
+ *      }
+ *      return originalReducer(state,action);
+ *    }
+ *  }
+ * @param {string} options.centerEnhancer 增强centers，结构如下：
+ *  function(center, { put,call,select,dispatch,getState }, currentMutationObject, actionType){
+ *    //...args=action,{ put,call,select,dispatch,getState }
+ *    return async function(...args){
+ *      //这里可以处理put()
+ *      //await put({type: 'loading',payload: true})
+ *      await centers(...args);
+ *      //这里也可以处理put()
+ *      //await put({type: 'loading',payload: false})
+ *    }
+ *  }
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
@@ -130,7 +158,20 @@ export default function convertMutationsObjects(mutationObjects, options) {
     mutationObjects = [mutationObjects];
   }
   checkMutationObjects(mutationObjects);
-  const { centersAliasName = 'effects', combineCenters } = options;
+  const {
+    centersAliasName = 'effects',
+    combineCenters,
+    reducerEnhancer = function(originalReducer) {
+      return (...args) => {
+        return originalReducer(...args);
+      };
+    },
+    centerEnhancer = function(center) {
+      return async (...args) => {
+        return await center(...args);
+      };
+    },
+  } = options;
   const randomReducerKey = randomString();
   const reducersAndCenters = mutationObjects.reduce(
     function(reducersAndCenters, mutationObject) {
@@ -144,7 +185,10 @@ export default function convertMutationsObjects(mutationObjects, options) {
         combineCenters,
       });
       reducersAndCenters.reducers[namespace] = reducer;
-      reducersAndCenters.centers.push(center);
+      reducersAndCenters.centers[namespace] = {
+        center,
+        mutationObject,
+      };
       return reducersAndCenters;
     },
     {
@@ -155,12 +199,43 @@ export default function convertMutationsObjects(mutationObjects, options) {
           return null;
         },
       },
-      centers: [],
+      //跟redux-centers不一致，这里需要其他数据
+      //{[namespace]: {center,mutationObject}}
+      centers: {},
     }
   );
   return {
-    reducer: combineReducers(reducersAndCenters.reducers),
-    centers: reducersAndCenters.centers,
+    reducer: reducerEnhancer(combineReducers(reducersAndCenters.reducers)),
+    centers: [
+      async function(action, centerUtils) {
+        checkActionType(action);
+        async function runCenter(...args) {
+          //centers组合成一个center。
+          //这里的逻辑跟redux-center的逻辑一致。
+          const promises = Object.keys(reducersAndCenters.centers).map(
+            namespace => {
+              const center = reducersAndCenters.centers[namespace].center;
+              return center(...args);
+            }
+          );
+          return await Promise.all(promises).then(shouldRunNexts => {
+            return shouldRunNexts.every(shouldRunNext => {
+              return shouldRunNext === true;
+            });
+          });
+        }
+        const namespace = action.type.split(SEPARATOR)[0];
+        const currentMutationObject =
+          reducersAndCenters.centers[namespace] &&
+          reducersAndCenters.centers[namespace].mutationObject;
+        return await centerEnhancer(
+          runCenter,
+          centerUtils,
+          currentMutationObject,
+          action.type
+        )(action, centerUtils);
+      },
+    ],
   };
 }
 /**
@@ -215,8 +290,9 @@ function convertMutationsObject(mutationObject, options) {
         { state, action }
       );
     },
-    center: (action, centerUtils) => {
-      return centerFunctionsToOneFunctionByAction.bind(mutationObject)(
+    center: async (action, centerUtils) => {
+      checkActionType(action);
+      return await centerFunctionsToOneFunctionByAction.bind(mutationObject)(
         centersObject,
         { namespace, combineCenters },
         { action, centerUtils }
@@ -226,6 +302,11 @@ function convertMutationsObject(mutationObject, options) {
 }
 /**
  * reducerObject转换为redux的reducer函数。
+ * 跟dva的handleAction实现是一致的，返回reducer。
+ * dva的使用了Array.reduce方式，挺高大上，不过会变复杂，相对不好理解。
+ * 这里逻辑并不复杂，Array.reduce在这里大才小用了。
+ * 直接使用for in语句来处理，会更直观。
+ * 其实就是相当于把官方redux例子的switch语句改为了if语句。
  * @param {object} reducerObject 格式如下
  * {
  *   test{}
@@ -255,7 +336,7 @@ function recducersFunctionsToOneFunctionByAction(
     }
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
-      //转换的时候，需要把fn上下文还原
+      //转换的时候，绑定fn上下文为mutationObject
       return fn.bind(this)(state, action);
     }
   }
@@ -274,15 +355,16 @@ function recducersFunctionsToOneFunctionByAction(
  * @param {function} combineCenters 请参考redux-center的combineCenters
  * @param {object} action redux action
  * @param {object} centerUtils redux-center的cener函数参数 {put,call,select,dispatch,getState}
- * @return undefined
+ * @return {any}
  */
-function centerFunctionsToOneFunctionByAction(
+async function centerFunctionsToOneFunctionByAction(
   centersObject,
   { namespace, combineCenters },
   { action, centerUtils }
 ) {
   const put = createNewPut(centerUtils.put, namespace);
   for (let key in centersObject) {
+    // console.log(key);
     const fn = centersObject[key];
     if (typeof fn !== 'function') {
       //忽略非函数的属性
@@ -295,22 +377,21 @@ function centerFunctionsToOneFunctionByAction(
     }
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
-      //转换的时候，需要把context上下文还原
       if (combineCenters) {
-        //转换的时候，需要把fn上下文还原
-        return combineCenters(fn.bind(this))[0](action, {
+        //转换的时候，绑定fn上下文为mutationObject
+        return await combineCenters(fn.bind(this))[0](action, {
           ...centerUtils,
           put,
         });
       } else {
-        //转换的时候，需要把fn上下文还原
-        return fn.bind(this)(action, { ...centerUtils, put });
+        // 转换的时候，绑定fn上下文为mutationObject
+        return await fn.bind(this)(action, { ...centerUtils, put });
       }
     }
     //center配置shouldRunReducer=false，就必须返回true
     //return true不影响shouldRunReducer=true，统一返回true；
-    return true;
   }
+  return true;
 }
 /**
  * @param {function} originalPut 原来的的center put参数
@@ -328,10 +409,8 @@ function createNewPut(originalPut, namespace) {
    */
 
   return function(action, replaceNamespace) {
+    checkActionType(action);
     const actionType = action.type;
-    if (typeof actionType !== 'string') {
-      throw new TypeError('Expect action.type to be a string.');
-    }
     let lastNamespace = replaceNamespace || namespace;
     if (actionType.indexOf(`${namespace}${SEPARATOR}`) === 0) {
       console.warn(
