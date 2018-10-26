@@ -1,4 +1,4 @@
-import combineCenters from 'redux-center/lib/combine-centers';
+import generatorsToAsync from 'redux-center/lib/generators-to-async';
 
 import {
   combineReducers,
@@ -38,7 +38,6 @@ function customStore(options) {
       }
     });
   }
-  const { centersAliasName, ...centerOptions } = options;
   /**
    * @param {...object} mutationObjects 请看文件conver-mutation-object.js注释
    * @param preloadedState 跟redux的createStore的一样，没做修改
@@ -56,12 +55,14 @@ function customStore(options) {
     } else {
       mutationObjects = functionsToAnys(mutationObjects);
       setMutationObjectByNamespace(mutationObjects);
+      //options不做过滤
       reducerAndCenters = convertMutationObjects(mutationObjects, {
-        combineCenters,
-        centersAliasName,
+        generatorsToAsync,
+        ...options,
       });
     }
-    const store = customBasicStore(centerOptions)(
+    //options不做过滤
+    const store = customBasicStore(options)(
       reducerAndCenters,
       preloadedState,
       enhancer
@@ -72,9 +73,9 @@ function customStore(options) {
         {
           store,
           onlyOrinalReducer,
-          centersAliasName,
           mutationObjectByNamespace,
-        }
+        },
+        options
       ),
       ...store,
     };
@@ -89,7 +90,8 @@ function customStore(options) {
  */
 function createReplaceMutationObjects(
   replaceReducerAndCenters,
-  { store, onlyOrinalReducer, centersAliasName, mutationObjectByNamespace }
+  { store, onlyOrinalReducer, mutationObjectByNamespace },
+  options
 ) {
   //热替换或动态加载中使用
   /**
@@ -131,8 +133,8 @@ function createReplaceMutationObjects(
       newMutationObjects.push(mutationObjectByNamespace[key]);
     }
     const reducerAndCenters = convertMutationObjects(newMutationObjects, {
-      centersAliasName,
-      combineCenters,
+      generatorsToAsync,
+      ...options,
     });
     replaceReducerAndCenters(reducerAndCenters);
   };
@@ -147,6 +149,4 @@ export {
   compose,
   __DO_NOT_USE__ActionTypes,
   customStore,
-  combineCenters,
-  convertMutationObjects,
 };
