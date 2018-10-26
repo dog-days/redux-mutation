@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import { combineReducers, compose } from 'redux';
 
 import isPlainObject from './utils/isPlainObject';
 import { SEPARATOR } from './utils/const';
@@ -26,7 +26,7 @@ import { randomString, checkActionType } from './utils/util';
  *  ]
  * @param {function} options.generatorsToAsync 请参考redux-center的generatorsToAsync
  * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
- * @param {string} options.reducerEnhancer 增强reducer，结构如下：
+ * @param {function} options.reducerEnhancer 增强reducer，结构如下：
  *  function(originalReducer){
  *    return (state,action)=>{
  *      //注意这里的state是，store.getState()后的值，整个store的值
@@ -36,7 +36,7 @@ import { randomString, checkActionType } from './utils/util';
  *      return originalReducer(state,action);
  *    }
  *  }
- * @param {string} options.centerEnhancer 增强centers，结构如下：
+ * @param {function} options.centerEnhancer 增强centers，结构如下：
  *  function(center, { put,call,select,dispatch,getState }, currentMutationObject, actionType){
  *    //...args=action,{ put,call,select,dispatch,getState }
  *    return async function(...args){
@@ -47,6 +47,8 @@ import { randomString, checkActionType } from './utils/util';
  *      //await put({type: 'loading',payload: false})
  *    }
  *  }
+ * @param {object} options.extraReducers 而外的reducer
+ * @param {function | ...function} options.extraCenters 而外的centers
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
@@ -114,8 +116,34 @@ class ConvertMutationsObjects {
         centers: [],
       }
     );
+    //而外的reducer和centers，用作插件，插件的代码是要放在一起的
+    let {
+      extraReducers = {},
+      extraCenters = [],
+      generatorsToAsync,
+    } = this.options;
+    if (reducersAndCenters.reducers) {
+      reducersAndCenters.reducers = {
+        ...reducersAndCenters.reducers,
+        ...extraReducers,
+      };
+    }
+    if (reducersAndCenters.centers) {
+      if (!Array.isArray(extraCenters)) {
+        extraCenters = [extraCenters];
+      }
+      if (generatorsToAsync) {
+        extraCenters = generatorsToAsync(extraCenters);
+      }
+      reducersAndCenters.centers = extraCenters.concat(
+        reducersAndCenters.centers
+      );
+    }
     return {
-      reducer: reducerEnhancer(combineReducers(reducersAndCenters.reducers)),
+      reducer: compose(
+        reducerEnhancer,
+        combineReducers
+      )(reducersAndCenters.reducers),
       centers: reducersAndCenters.centers,
     };
   }

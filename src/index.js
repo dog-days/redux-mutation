@@ -1,5 +1,3 @@
-import generatorsToAsync from 'redux-center/lib/generators-to-async';
-
 import {
   combineReducers,
   bindActionCreators,
@@ -10,18 +8,22 @@ import {
 } from './basic';
 import convertMutationObjects from './convert-mutation-objects';
 import functionsToAnys from './functions-to-anys';
+import applyPlugin from './apply-plugin';
 import isPlainObject from './utils/isPlainObject';
+import { isObjectEmpty } from './utils/util';
 
 /**
  * 创建经过修改后的createStore
+ * @param {object} plugin plugin 会整合进options，可以理解为特殊的options，配合applyPlugin使用
  * @param {object} options 配置项，centers配置和convertMutationObjects配置
  * @param {object} 配置centersAliasName等
  * @return {object} ...createStore(...args)，返回的值跟redux createStore的是一致的。
  */
-function customStore(options) {
-  if (!options) {
-    options = {};
-  }
+function createMutationStore(plugin = {}, options = {}) {
+  options = {
+    ...options,
+    ...plugin,
+  };
   const mutationObjectByNamespace = {};
   /**
    * 按照namespace的方式存放到mutationObjectByNamespace
@@ -45,21 +47,23 @@ function customStore(options) {
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
    */
   return (mutationObjects, preloadedState, enhancer) => {
-    let reducerAndCenters;
-    let onlyOrinalReducer = false;
+    let reducerAndCenters = {};
+    let onlyOrinalReducer = false; //mutationObjects格式是否是reducer格式
     if (typeof mutationObjects === 'function') {
       //mutationObjects是redux reducer格式
       //即function(state,action)
       onlyOrinalReducer = true;
-      reducerAndCenters = mutationObjects;
+      reducerAndCenters.reducer = mutationObjects;
+      if (!isObjectEmpty(options)) {
+        console.warn(
+          'options param will not work when mutationObjects is reducer format.'
+        );
+      }
     } else {
       mutationObjects = functionsToAnys(mutationObjects);
       setMutationObjectByNamespace(mutationObjects);
       //options不做过滤
-      reducerAndCenters = convertMutationObjects(mutationObjects, {
-        generatorsToAsync,
-        ...options,
-      });
+      reducerAndCenters = convertMutationObjects(mutationObjects, options);
     }
     //options不做过滤
     const store = customBasicStore(options)(
@@ -132,14 +136,14 @@ function createReplaceMutationObjects(
     for (let key in mutationObjectByNamespace) {
       newMutationObjects.push(mutationObjectByNamespace[key]);
     }
-    const reducerAndCenters = convertMutationObjects(newMutationObjects, {
-      generatorsToAsync,
-      ...options,
-    });
+    const reducerAndCenters = convertMutationObjects(
+      newMutationObjects,
+      options
+    );
     replaceReducerAndCenters(reducerAndCenters);
   };
 }
-const createStore = customStore();
+const createStore = createMutationStore();
 
 export {
   createStore,
@@ -148,5 +152,6 @@ export {
   applyMiddleware,
   compose,
   __DO_NOT_USE__ActionTypes,
-  customStore,
+  createMutationStore,
+  applyPlugin,
 };

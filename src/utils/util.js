@@ -27,3 +27,14 @@ export function checkActionType(action) {
     );
   }
 }
+
+/**
+ * 是否为空对象
+ * @param {obect} object
+ */
+export function isObjectEmpty(object) {
+  for (let key in object) {
+    return false;
+  }
+  return true;
+}
