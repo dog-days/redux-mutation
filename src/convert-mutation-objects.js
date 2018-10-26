@@ -159,8 +159,6 @@ export default function convertMutationsObjects(mutationObjects, options) {
   }
   checkMutationObjects(mutationObjects);
   const {
-    centersAliasName = 'effects',
-    generatorsToAsync,
     reducerEnhancer = function(originalReducer) {
       return (...args) => {
         return originalReducer(...args);
@@ -171,6 +169,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
         return await center(...args);
       };
     },
+    ...otherOptions
   } = options;
   const randomReducerKey = randomString();
   const reducersAndCenters = mutationObjects.reduce(
@@ -181,14 +180,11 @@ export default function convertMutationsObjects(mutationObjects, options) {
       }
       const namespace = mutationObject.namespace;
       let { reducer, center } = convertMutationsObject(mutationObject, {
-        centersAliasName,
-        generatorsToAsync,
+        ...otherOptions,
+        centerEnhancer,
       });
       reducersAndCenters.reducers[namespace] = reducer;
-      reducersAndCenters.centers[namespace] = {
-        center,
-        mutationObject,
-      };
+      reducersAndCenters.centers.push(center);
       return reducersAndCenters;
     },
     {
@@ -201,41 +197,12 @@ export default function convertMutationsObjects(mutationObjects, options) {
       },
       //跟redux-centers不一致，这里需要其他数据
       //{[namespace]: {center,mutationObject}}
-      centers: {},
+      centers: [],
     }
   );
   return {
     reducer: reducerEnhancer(combineReducers(reducersAndCenters.reducers)),
-    centers: [
-      async function(action, centerUtils) {
-        checkActionType(action);
-        async function runCenter(...args) {
-          //centers组合成一个center。
-          //这里的逻辑跟redux-center的逻辑一致。
-          const promises = Object.keys(reducersAndCenters.centers).map(
-            namespace => {
-              const center = reducersAndCenters.centers[namespace].center;
-              return center(...args);
-            }
-          );
-          return await Promise.all(promises).then(shouldRunNexts => {
-            return shouldRunNexts.every(shouldRunNext => {
-              return shouldRunNext === true;
-            });
-          });
-        }
-        const namespace = action.type.split(SEPARATOR)[0];
-        const currentMutationObject =
-          reducersAndCenters.centers[namespace] &&
-          reducersAndCenters.centers[namespace].mutationObject;
-        return await centerEnhancer(
-          runCenter,
-          centerUtils,
-          currentMutationObject,
-          action.type
-        )(action, centerUtils);
-      },
-    ],
+    centers: reducersAndCenters.centers,
   };
 }
 /**
@@ -259,13 +226,7 @@ export default function convertMutationsObjects(mutationObjects, options) {
  */
 function convertMutationsObject(mutationObject, options) {
   checkMutationObjectVariableType(mutationObject);
-  const { centersAliasName, generatorsToAsync } = options;
-  if (
-    generatorsToAsync !== undefined &&
-    typeof generatorsToAsync !== 'function'
-  ) {
-    throw new TypeError('Expect generatorsToAsync to be a function.');
-  }
+  const { centersAliasName = 'effects', ...otherOptions } = options;
   const namespace = mutationObject.namespace;
   checkMutationObjectField(mutationObject, 'namespace');
 
@@ -297,7 +258,7 @@ function convertMutationsObject(mutationObject, options) {
       checkActionType(action);
       return await centerFunctionsToOneFunctionByAction.bind(mutationObject)(
         centersObject,
-        { namespace, generatorsToAsync },
+        { namespace, ...otherOptions },
         { action, centerUtils }
       );
     },
@@ -354,15 +315,16 @@ function recducersFunctionsToOneFunctionByAction(
  *   test{}
  *   test2{}
  * }
- * @param {string} namespace 命名空间，相当于reducer函数名
- * @param {function} generatorsToAsync 请参考redux-center的generatorsToAsync
+ * @param {string} options.namespace 命名空间，相当于reducer函数名
+ * @param {function} options.generatorsToAsync 请参考redux-center的generatorsToAsync
+ * @param {function} options.centerEnhancer 请参考上面centerEnhancer注释
  * @param {object} action redux action
  * @param {object} centerUtils redux-center的cener函数参数 {put,call,select,dispatch,getState}
  * @return {any}
  */
 async function centerFunctionsToOneFunctionByAction(
   centersObject,
-  { namespace, generatorsToAsync },
+  { namespace, generatorsToAsync, centerEnhancer },
   { action, centerUtils }
 ) {
   const put = createNewPut(centerUtils.put, namespace);
@@ -380,20 +342,26 @@ async function centerFunctionsToOneFunctionByAction(
     }
     //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
     if (action.type === `${namespace}${SEPARATOR}${key}`) {
+      let center;
       if (generatorsToAsync) {
         //转换的时候，绑定fn上下文为mutationObject
-        return await generatorsToAsync(fn.bind(this))[0](action, {
-          ...centerUtils,
-          put,
-        });
+        center = generatorsToAsync(fn.bind(this))[0];
       } else {
         // 转换的时候，绑定fn上下文为mutationObject
-        return await fn.bind(this)(action, { ...centerUtils, put });
+        center = fn.bind(this);
       }
+      const newCenterUtils = {
+        ...centerUtils,
+        put,
+      };
+      return await centerEnhancer(center, centerUtils, this, action.type)(
+        action,
+        newCenterUtils
+      );
     }
-    //center配置shouldRunReducer=false，就必须返回true
-    //return true不影响shouldRunReducer=true，统一返回true；
   }
+  //center配置shouldRunReducer=false，就必须返回true
+  //return true不影响shouldRunReducer=true，统一返回true；
   return true;
 }
 /**
