@@ -59,6 +59,8 @@ class ConvertMutationsObjects {
   constructor(mutationObjects, options = {}) {
     this.mutationObjects = mutationObjects;
     this.options = this.getDefaultOptions(options);
+    //所有唯一且合法的centers actionType，从mutationObjects的centers中整合出来的。
+    this.allCentersActionTypes = [];
     return this.convertMutationsObjects();
   }
   getDefaultOptions(options) {
@@ -238,7 +240,7 @@ class ConvertMutationsObjects {
         continue;
       }
       //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
-      if (action.type === `${namespace}${SEPARATOR}${key}`) {
+      if (action.type === this.getActionType(namespace, key)) {
         //转换的时候，绑定fn上下文为mutationObject
         return fn.bind(mutationObject)(state, action);
       }
@@ -279,7 +281,7 @@ class ConvertMutationsObjects {
         );
       }
       //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
-      if (action.type === `${namespace}${SEPARATOR}${key}`) {
+      if (action.type === this.getActionType(namespace, key)) {
         let center;
         if (generatorsToAsync) {
           //转换的时候，绑定fn上下文为mutationObject
@@ -294,7 +296,21 @@ class ConvertMutationsObjects {
         };
         return await centerEnhancer(
           center,
-          centerUtils,
+          {
+            ...newCenterUtils,
+            put: (action, ...arg) => {
+              if (!!~this.allCentersActionTypes.indexOf(action.type)) {
+                throw new Error(
+                  `
+                    The centerEnhancer should not interact with centers.
+                    Because it will cause an infinite loop.
+                    The action type is "${action.type}".
+                  `
+                );
+              }
+              return centerUtils.put(action, ...arg);
+            },
+          },
           mutationObject,
           action.type
         )(action, newCenterUtils);
@@ -303,6 +319,15 @@ class ConvertMutationsObjects {
     //center配置shouldRunReducer=false，就必须返回true
     //return true不影响shouldRunReducer=true，统一返回true；
     return true;
+  }
+  /**
+   * 根据namespace和functionName获取actionType
+   * @param {string} namespace mutationObject.namespace
+   * @param {string} functionName mutationObject.reducers[functionName]
+   * 或者 mutationObject.centers[functionName]
+   */
+  getActionType(namespace, functionName) {
+    return `${namespace}${SEPARATOR}${functionName}`;
   }
   /**
    * @param {function} originalPut 原来的的center put参数
@@ -434,6 +459,9 @@ class ConvertMutationsObjects {
         } else {
           allReducersCentersKey[centersKey] = true;
         }
+        this.allCentersActionTypes.push(
+          this.getActionType(mutationObject.namespace, centersKey)
+        );
       }
     });
   }
