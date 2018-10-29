@@ -7,7 +7,7 @@ import { randomString, checkActionType } from './utils/util';
 /**
  * 转换多个mutationObject结构
  * namespace其实就是reducer名
- * @param {...object} mutationObjects
+ * @param {array} mutationObjects
  *  [
  *    {
  *      namespace: 'test',
@@ -421,7 +421,7 @@ class ConvertMutationsObjects {
   /**
    * 验证namespace是否重复
    * 验证所有reducers和centers的属性名是否重复，重复则抛出异常
-   * @param {...object} mutationObjects
+   * @param {array} mutationObjects
    */
   checkMutationObjects(mutationObjects) {
     //存放所有namepsace

@@ -27,7 +27,7 @@ function createMutationStore(plugin = {}, options = {}) {
   const mutationObjectByNamespace = {};
   /**
    * 按照namespace的方式存放到mutationObjectByNamespace
-   * @param {object | ...object | ...function} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
+   * @param {object | array} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
    */
   function setMutationObjectByNamespace(mutationObjects = {}) {
     if (!Array.isArray(mutationObjects)) {
@@ -41,7 +41,7 @@ function createMutationStore(plugin = {}, options = {}) {
     });
   }
   /**
-   * @param {...object} mutationObjects 请看文件conver-mutation-object.js注释
+   * @param {array} mutationObjects 请看文件conver-mutation-object.js注释
    * @param preloadedState 跟redux的createStore的一样，没做修改
    * @param enhancer 跟redux的createStore的一样，没做修改
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
@@ -73,7 +73,6 @@ function createMutationStore(plugin = {}, options = {}) {
     );
     return {
       replaceMutationObjects: createReplaceMutationObjects(
-        store.replaceReducerAndCenters,
         {
           store,
           onlyOriginalReducer,
@@ -86,21 +85,19 @@ function createMutationStore(plugin = {}, options = {}) {
   };
 }
 /**
- * @param {object} replaceReducerAndCenters 请查看./basic.js的相关注释
  * @param {object} options.store redux store实例
  * @param {object} options.onlyOriginalReducer mutationObjects的格式是redux的reducer格式
  * @param {object} options.mutationObjectByNamespace mutationObject的namespace为key的对象
  * @returns {function} replaceMutationObjects函数
  */
 function createReplaceMutationObjects(
-  replaceReducerAndCenters,
   { store, onlyOriginalReducer, mutationObjectByNamespace },
   options
 ) {
   //热替换或动态加载中使用
   /**
    * 可替换单个和多个
-   * @param {object | ...object | ...function} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
+   * @param {object | array} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
    */
   return function(newMutationObjects) {
     if (onlyOriginalReducer) {
@@ -140,7 +137,7 @@ function createReplaceMutationObjects(
       newMutationObjects,
       options
     );
-    replaceReducerAndCenters(reducerAndCenters);
+    store.replaceReducerAndCenters(reducerAndCenters);
   };
 }
 const createStore = createMutationStore();
