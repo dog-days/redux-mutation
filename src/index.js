@@ -48,11 +48,11 @@ function createMutationStore(plugin = {}, options = {}) {
    */
   return (mutationObjects, preloadedState, enhancer) => {
     let reducerAndCenters = {};
-    let onlyOrinalReducer = false; //mutationObjects格式是否是reducer格式
+    let onlyOriginalReducer = false; //mutationObjects格式是否是reducer格式
     if (typeof mutationObjects === 'function') {
       //mutationObjects是redux reducer格式
       //即function(state,action)
-      onlyOrinalReducer = true;
+      onlyOriginalReducer = true;
       reducerAndCenters.reducer = mutationObjects;
       if (!isObjectEmpty(options)) {
         console.warn(
@@ -76,7 +76,7 @@ function createMutationStore(plugin = {}, options = {}) {
         store.replaceReducerAndCenters,
         {
           store,
-          onlyOrinalReducer,
+          onlyOriginalReducer,
           mutationObjectByNamespace,
         },
         options
@@ -88,13 +88,13 @@ function createMutationStore(plugin = {}, options = {}) {
 /**
  * @param {object} replaceReducerAndCenters 请查看./basic.js的相关注释
  * @param {object} options.store redux store实例
- * @param {object} options.onlyOrinalReducer mutationObjects的格式是redux的reducer格式
+ * @param {object} options.onlyOriginalReducer mutationObjects的格式是redux的reducer格式
  * @param {object} options.mutationObjectByNamespace mutationObject的namespace为key的对象
  * @returns {function} replaceMutationObjects函数
  */
 function createReplaceMutationObjects(
   replaceReducerAndCenters,
-  { store, onlyOrinalReducer, mutationObjectByNamespace },
+  { store, onlyOriginalReducer, mutationObjectByNamespace },
   options
 ) {
   //热替换或动态加载中使用
@@ -103,7 +103,7 @@ function createReplaceMutationObjects(
    * @param {object | ...object | ...function} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
    */
   return function(newMutationObjects) {
-    if (onlyOrinalReducer) {
+    if (onlyOriginalReducer) {
       return store.replaceReducer(newMutationObjects);
     }
     newMutationObjects = functionsToAnys(newMutationObjects);
