@@ -17,9 +17,9 @@ import { isObjectEmpty } from './utils/util';
  * @param {object} plugin plugin 会整合进options，可以理解为特殊的options，配合applyPlugin使用
  * @param {object} options 配置项，centers配置和convertMutationObjects配置
  * @param {object} 配置centersAliasName等
- * @return {object} ...createStore(...args)，返回的值跟redux createStore的是一致的。
+ * @return {object} 返回createStore函数
  */
-function createMutationStore(plugin = {}, options = {}) {
+function configCreateStore(plugin = {}, options = {}) {
   options = {
     ...options,
     ...plugin,
@@ -41,7 +41,7 @@ function createMutationStore(plugin = {}, options = {}) {
     });
   }
   /**
-   * @param {array} mutationObjects 请看文件conver-mutation-object.js注释
+   * @param {function object | array} mutationObjects 请看文件conver-mutation-object.js注释
    * @param preloadedState 跟redux的createStore的一样，没做修改
    * @param enhancer 跟redux的createStore的一样，没做修改
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
@@ -140,7 +140,7 @@ function createReplaceMutationObjects(
     store.replaceReducerAndCenters(reducerAndCenters);
   };
 }
-const createStore = createMutationStore();
+const createStore = configCreateStore();
 
 export {
   createStore,
@@ -149,6 +149,6 @@ export {
   applyMiddleware,
   compose,
   __DO_NOT_USE__ActionTypes,
-  createMutationStore,
+  configCreateStore,
   applyPlugin,
 };

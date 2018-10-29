@@ -7,7 +7,7 @@ import { randomString, checkActionType } from './utils/util';
 /**
  * 转换多个mutationObject结构
  * namespace其实就是reducer名
- * @param {array} mutationObjects
+ * @param {object | array} mutationObjects
  *  [
  *    {
  *      namespace: 'test',
@@ -48,7 +48,7 @@ import { randomString, checkActionType } from './utils/util';
  *    }
  *  }
  * @param {object} options.extraReducers 而外的reducer
- * @param {function | ...function} options.extraCenters 而外的centers
+ * @param {function | array} options.extraCenters 而外的centers
  * @return {object} {reducer,centers} 结构如下
  *  {
  *    reducer: function(state,action){},
