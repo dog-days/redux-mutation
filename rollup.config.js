@@ -1,3 +1,4 @@
+//nodeResolve是必须的，要不watch模式会报错。
 import nodeResolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
@@ -20,7 +21,13 @@ function createCommonConfigByInput(input, fileName, umdName) {
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
       ],
-      plugins: [commonjsPlugin, babel()],
+      plugins: [
+        commonjsPlugin,
+        nodeResolve({
+          jsnext: true,
+        }),
+        babel(),
+      ],
     },
 
     // ES
@@ -31,7 +38,13 @@ function createCommonConfigByInput(input, fileName, umdName) {
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
       ],
-      plugins: [commonjsPlugin, babel()],
+      plugins: [
+        commonjsPlugin,
+        nodeResolve({
+          jsnext: true,
+        }),
+        babel(),
+      ],
     },
 
     // ES for Browsers
