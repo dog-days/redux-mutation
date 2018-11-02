@@ -26,7 +26,7 @@ import { randomString, checkActionType } from './utils/util';
  *  ]
  * @param {function} options.generatorsToAsync 请参考redux-center的generatorsToAsync
  * @param {string} options.centersAliasName mutationObject.centers别名，兼容dva和redux-saga-model
- * @param {function} options.reducerEnhancer 增强reducer，结构如下：
+ * @param {function} options.reducerEnhancer 增强reducer，只要dispatch就会运行reducerEnhancer（前提中间件不拦截），结构如下：
  *  function(originalReducer){
  *    return (state,action)=>{
  *      //注意这里的state是，store.getState()后的值，整个store的值
@@ -36,13 +36,13 @@ import { randomString, checkActionType } from './utils/util';
  *      return originalReducer(state,action);
  *    }
  *  }
- * @param {function} options.centerEnhancer 增强centers，结构如下：
+ * @param {function} options.centerEnhancer 增强centers，只会在center规则命中的情况先运行，这个跟，reducerEnhancer不一样，结构如下：
  *  function(center, { put,call,select,dispatch,getState }, currentMutationObject, actionType){
  *    //...args=action,{ put,call,select,dispatch,getState }
  *    return async function(...args){
  *      //这里可以处理put()
  *      //await put({type: 'loading',payload: true})
- *      await centers(...args);
+ *      await center(...args);
  *      //这里也可以处理put()
  *      //await put({type: 'loading',payload: false})
  *    }

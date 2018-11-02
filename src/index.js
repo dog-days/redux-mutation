@@ -11,12 +11,12 @@ import functionsToAnys from './functions-to-anys';
 import applyPlugin from './apply-plugin';
 import isPlainObject from './utils/isPlainObject';
 import { isObjectEmpty } from './utils/util';
+import { SEPARATOR } from './utils/const';
 
 /**
  * 创建经过修改后的createStore
  * @param {object} plugin plugin 会整合进options，可以理解为特殊的options，配合applyPlugin使用
  * @param {object} options 配置项，centers配置和convertMutationObjects配置
- * @param {object} 配置centersAliasName等
  * @return {object} 返回createStore函数
  */
 function configCreateStore(plugin = {}, options = {}) {
@@ -151,4 +151,5 @@ export {
   __DO_NOT_USE__ActionTypes,
   configCreateStore,
   applyPlugin,
+  SEPARATOR,
 };
