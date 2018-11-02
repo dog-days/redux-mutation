@@ -3,6 +3,9 @@ import { combineReducers, compose } from 'redux';
 import isPlainObject from './utils/isPlainObject';
 import { SEPARATOR } from './utils/const';
 import { randomString, checkActionType } from './utils/util';
+import checkReduxExist from './check-redux-exist';
+
+checkReduxExist(compose);
 
 /**
  * 转换多个mutationObject结构
@@ -350,17 +353,17 @@ class ConvertMutationsObjects {
       if (actionType.indexOf(`${namespace}${SEPARATOR}`) === 0) {
         console.warn(
           `
-          When using "put" in the current mutationObject，
-          you can use function name without namespace.
-          You should use in this way:
-          await put({
-            type: ${actionType.split(`${namespace}${SEPARATOR}`)[1]};
-          });
-          We do not recommend using in this way:
-          await put({
-            type: ${actionType}
-          });
-        `
+            When using "put" in the current mutationObject，
+            you can use function name without namespace.
+            You should use in this way:
+            await put({
+              type: ${actionType.split(`${namespace}${SEPARATOR}`)[1]};
+            });
+            We do not recommend using in this way:
+            await put({
+              type: ${actionType}
+            });
+          `
         );
       }
       let newType = actionType;

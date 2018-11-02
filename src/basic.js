@@ -14,6 +14,9 @@ import {
 import createCenter from 'redux-center';
 
 import isPlainObject from './utils/isPlainObject';
+import checkReduxExist from './check-redux-exist';
+
+checkReduxExist(createReduxStore);
 
 /**
  * 创建经过修改后的createStore
