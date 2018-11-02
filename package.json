@@ -1,111 +1,77 @@
 {
   "version": "0.0.1",
   "name": "redux-mutation",
-  "main": "lib/index.js",
-  "jsnext:main": "es/index.js",
-  "module": "es/index.js",
+  "main": "lib/redux-mutation.js",
+  "jsnext:main": "es/redux-mutation.js",
+  "module": "es/redux-mutation.js",
   "homepage": "https://github.com/dog-days/redux-mutation",
   "repository": "https://github.com/dog-days/redux-mutation",
   "bugs": "github:reduxjs/redux/issues",
-  "dependencies": {},
+  "dependencies": {
+    "redux-center": "0.0.4"
+  },
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-external-helpers": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "babel-cli": "^6.26.0",
+    "babel-eslint": "9.0.0",
+    "chai": "^4.2.0",
     "cross-env": "^5.1.1",
-    "husky": "^1.0.0-rc.4",
+    "eslint": "5.6.0",
+    "eslint-config-react-app": "^3.0.5",
+    "eslint-plugin-flowtype": "^3.1.4",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "husky": "^1.1.2",
+    "lerna": "^3.4.3",
     "lint-staged": "^7.1.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
     "prettier": "^1.13.2",
-    "promise": "^8.0.2",
-    "react": "^15.4.1",
-    "react-boilerplate-app-scripts": "^0.2.11",
-    "react-dom": "^15.4.1",
-    "react-redux": "^5.0.7",
+    "prop-types": "^15.6.2",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0",
+    "react-scripts": "2.1.0",
     "redux": "^4.0.1",
-    "redux-center": "0.0.3",
-    "redux-logger": "^3.0.6"
+    "redux-logger": "^3.0.6",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.66.6",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.1.0",
+    "rollup-plugin-terser": "^3.0.0",
+    "sinon": "^7.1.0"
   },
   "scripts": {
-    "build-demo": "npm run build-dll hide-message && react-boilerplate-app-scripts build",
-    "build-dll": "react-boilerplate-app-scripts build-dll",
-    "cover": "react-boilerplate-app-scripts cover",
-    "serve-build": "react-boilerplate-app-scripts serve-build",
-    "start": "npm run build-dll hide-message && react-boilerplate-app-scripts start",
-    "use": "react-boilerplate-app-scripts use",
-    "build-publish": "npm run test && npm run transform && npm publish",
+    "test": "rimraf coverage && cross-env NODE_ENV=TEST nyc mocha './test/**/*.spec.js'",
+    "test-special": "rimraf coverage && cross-env NODE_ENV=TEST nyc mocha",
+    "postinstall": "npm run bootstrap",
+    "bootstrap": "lerna bootstrap --ignore-scripts",
+    "lint": "eslint src/**",
+    "clean": "rimraf lib dist es coverage",
+    "build": "npm run clean && rollup -c",
+    "build-watch": "rollup -c -w",
+    "build-publish": "npm run test && npm run build && lerna publish",
     "prettier": "prettier --write './**/*(*.js|*.jsx|*.less|*.css)'",
-    "transform": "npm run transform-es && npm run transform-default",
-    "transform-es": "rm -rf es && cross-env BABEL_ENV=es babel ./src -d es",
-    "transform-es-watch": "cross-env BABEL_ENV=es babel ./src -d es -w",
-    "transform-default": "rm -rf ./lib && cross-env BABEL_ENV=production babel ./src -d lib",
-    "transform-default-watch": "cross-env BABEL_ENV=default babel ./src -d lib -w"
+    "counter": "npm run start --prefix examples/counter"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run test"
-    }
-  },
-  "lint-staged": {
-    "*.js|*.jsx": [
-      "eslint"
+  "nyc": {
+    "include": [
+      "src/**/*.js"
     ],
-    "*.js|*.jsx|*.less|*.css": [
-      "prettier --write",
-      "git add"
+    "reporter": [
+      "html",
+      "lcovonly",
+      "json",
+      "text"
     ]
-  },
-  "react-boilerplate-app-scripts": {
-    "appSrcPath": "demo/src",
-    "appPublicPath": "demo/public"
-  },
-  "babel": {
-    "env": {
-      "development": {
-        "presets": [
-          "react",
-          [
-            "es2015",
-            {
-              "modules": false
-            }
-          ],
-          "stage-0"
-        ],
-        "plugins": [
-          "transform-decorators-legacy",
-          "transform-runtime",
-          "react-hot-loader/babel"
-        ]
-      },
-      "production": {
-        "plugins": [
-          "transform-decorators-legacy",
-          "transform-runtime"
-        ],
-        "presets": [
-          "react",
-          "es2015",
-          "stage-0"
-        ]
-      },
-      "es": {
-        "plugins": [
-          "transform-decorators-legacy",
-          "transform-runtime"
-        ],
-        "presets": [
-          "react",
-          [
-            "es2015",
-            {
-              "modules": false
-            }
-          ],
-          "stage-0"
-        ]
-      }
-    }
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }
