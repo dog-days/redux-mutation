@@ -3,9 +3,6 @@ import { combineReducers, compose } from 'redux';
 import isPlainObject from './utils/isPlainObject';
 import { SEPARATOR } from './utils/const';
 import { randomString, checkActionType } from './utils/util';
-import checkReduxExist from './check-redux-exist';
-
-checkReduxExist(compose);
 
 /**
  * 转换多个mutationObject结构
@@ -74,8 +71,11 @@ class ConvertMutationsObjects {
         };
       },
       centerEnhancer: function(center) {
-        return async (...args) => {
-          return await center(...args);
+        return (...args) => {
+          return new Promise(resolve => {
+            const result = center(...args);
+            resolve(result);
+          });
         };
       },
       ...options,
@@ -198,13 +198,16 @@ class ConvertMutationsObjects {
           { state, action }
         );
       },
-      center: async (action, centerUtils) => {
+      center: (action, centerUtils) => {
         checkActionType(action);
-        return await this.centerFunctionsToOneFunctionByAction(
-          centersObject,
-          { namespace, mutationObject, ...otherOptions },
-          { action, centerUtils }
-        );
+        return new Promise(resolve => {
+          const result = this.centerFunctionsToOneFunctionByAction(
+            centersObject,
+            { namespace, mutationObject, ...otherOptions },
+            { action, centerUtils }
+          );
+          resolve(result);
+        });
       },
     };
   }
@@ -265,7 +268,7 @@ class ConvertMutationsObjects {
    * @param {object} centerUtils redux-center的cener函数参数 {put,call,select,dispatch,getState}
    * @return {any}
    */
-  async centerFunctionsToOneFunctionByAction(
+  centerFunctionsToOneFunctionByAction(
     centersObject,
     { namespace, mutationObject, generatorsToAsync, centerEnhancer },
     { action, centerUtils }
@@ -297,26 +300,29 @@ class ConvertMutationsObjects {
           ...centerUtils,
           put,
         };
-        return await centerEnhancer(
-          center,
-          {
-            ...newCenterUtils,
-            put: (action, ...arg) => {
-              if (!!~this.allCentersActionTypes.indexOf(action.type)) {
-                throw new Error(
-                  `
+        return new Promise(resolve => {
+          const result = centerEnhancer(
+            center,
+            {
+              ...newCenterUtils,
+              put: (action, ...arg) => {
+                if (!!~this.allCentersActionTypes.indexOf(action.type)) {
+                  throw new Error(
+                    `
                     The centerEnhancer should not interact with centers.
                     Because it will cause an infinite loop.
                     The action type is "${action.type}".
                   `
-                );
-              }
-              return centerUtils.put(action, ...arg);
+                  );
+                }
+                return centerUtils.put(action, ...arg);
+              },
             },
-          },
-          mutationObject,
-          action.type
-        )(action, newCenterUtils);
+            mutationObject,
+            action.type
+          )(action, newCenterUtils);
+          resolve(result);
+        });
       }
     }
     //center配置shouldRunReducer=false，就必须返回true
