@@ -435,9 +435,9 @@ class ConvertMutationsObjects {
   checkMutationObjects(mutationObjects) {
     //存放所有namepsace
     const allNamespace = {};
-    //存放所有reducers和centers的property
-    const allReducersCentersKey = {};
     mutationObjects.forEach(mutationObject => {
+      //存放所有当前mutationObject的reducers和centers的property
+      const reducersCentersKeysFlag = {};
       this.checkMutationObjectVariableType(mutationObject);
       if (allNamespace[mutationObject.namespace]) {
         throw new Error(
@@ -448,25 +448,25 @@ class ConvertMutationsObjects {
       }
       function throwRducersCentersError(field) {
         throw new Error(
-          `reducers[property] and centers[property] should be unique.\r\nThe namespace is "${
+          `Teh current mutationObject reducers[property] and centers[property] should be unique.\r\nThe namespace is "${
             mutationObject.namespace
           }".And the property is "${field}".`
         );
       }
       const reducers = mutationObject.reducers;
       for (let reducersKey in reducers) {
-        if (allReducersCentersKey[reducersKey]) {
+        if (reducersCentersKeysFlag[reducersKey]) {
           throwRducersCentersError(reducersKey);
         } else {
-          allReducersCentersKey[reducersKey] = true;
+          reducersCentersKeysFlag[reducersKey] = true;
         }
       }
       const centers = mutationObject.centers;
       for (let centersKey in centers) {
-        if (allReducersCentersKey[centersKey]) {
+        if (reducersCentersKeysFlag[centersKey]) {
           throwRducersCentersError(centersKey);
         } else {
-          allReducersCentersKey[centersKey] = true;
+          reducersCentersKeysFlag[centersKey] = true;
         }
         this.allCentersActionTypes.push(
           this.getActionType(mutationObject.namespace, centersKey)
