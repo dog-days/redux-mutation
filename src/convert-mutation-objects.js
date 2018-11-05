@@ -451,11 +451,7 @@ class ConvertMutationsObjects {
             `mutationObject.reducers["${reducersKey}"] can not contain "${SEPARATOR}"`
           );
         }
-        if (reducersCentersKeysFlag[reducersKey]) {
-          throwRducersCentersError(reducersKey);
-        } else {
-          reducersCentersKeysFlag[reducersKey] = true;
-        }
+        reducersCentersKeysFlag[reducersKey] = true;
       }
       const centers = mutationObject.centers;
       for (let centersKey in centers) {
