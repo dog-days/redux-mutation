@@ -146,20 +146,4 @@ export default [
     'redux-mutation',
     'ReduxMutation'
   ),
-  ...createCommonConfigByInput('src/basic', 'basic', 'ReduxMutationBasic'),
-  ...createCommonConfigByInput(
-    'src/apply-plugin.js',
-    'apply-plugin',
-    'ApplyPlugin'
-  ),
-  ...createCommonConfigByInput(
-    'src/functions-to-anys.js',
-    'functions-to-anys',
-    'FunctionsToAnys'
-  ),
-  ...createCommonConfigByInput(
-    'src/convert-mutation-objects.js',
-    'convert-mutation-objects',
-    'ConvertMutationObjects'
-  ),
 ];
