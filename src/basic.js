@@ -14,9 +14,24 @@ import {
 import createCenter from 'redux-center';
 
 import isPlainObject from './utils/isPlainObject';
-import checkReduxExist from './check-redux-exist';
 
-checkReduxExist(createReduxStore);
+try {
+  if (createReduxStore) {
+    //这里必须运行代码，否则打包会被移除。
+    console.log();
+  }
+} catch (e) {
+  throw new Error(
+    `
+        Please use with redux,refering to https://github.com/reduxjs/redux.
+        Umd usage
+        <scrpit src="https://unpkg.com/redux/dist/redux.js"></scrpit>
+        Es6 usage (not recommended)
+        import redux from 'Redux';
+        window.Redux = redux;
+      `
+  );
+}
 
 /**
  * 创建经过修改后的createStore
