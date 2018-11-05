@@ -1,7 +1,4 @@
 import { compose } from 'redux';
-import checkReduxExist from './check-redux-exist';
-
-checkReduxExist(compose);
 
 /**
  * 整合插件
