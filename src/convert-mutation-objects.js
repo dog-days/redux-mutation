@@ -235,11 +235,6 @@ class ConvertMutationsObjects {
     { state, action }
   ) {
     for (let key in reducerObject) {
-      if (!!~key.indexOf(SEPARATOR)) {
-        throw new TypeError(
-          `mutationObject.reducers["${key}"] can not contain "${SEPARATOR}"`
-        );
-      }
       const fn = reducerObject[key];
       if (typeof fn !== 'function') {
         //忽略非函数的属性
@@ -280,11 +275,6 @@ class ConvertMutationsObjects {
       if (typeof fn !== 'function') {
         //忽略非函数的属性
         continue;
-      }
-      if (!!~key.indexOf(SEPARATOR)) {
-        throw new TypeError(
-          `mutationObject.centers["${key}"] can not contain "${SEPARATOR}"`
-        );
       }
       //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
       if (action.type === this.getActionType(namespace, key)) {
@@ -430,6 +420,7 @@ class ConvertMutationsObjects {
   /**
    * 验证namespace是否重复
    * 验证所有reducers和centers的属性名是否重复，重复则抛出异常
+   * 验证reducer函数名和center函数名是否合法
    * @param {array} mutationObjects
    */
   checkMutationObjects(mutationObjects) {
@@ -455,6 +446,11 @@ class ConvertMutationsObjects {
       }
       const reducers = mutationObject.reducers;
       for (let reducersKey in reducers) {
+        if (!!~reducersKey.indexOf(SEPARATOR)) {
+          throw new TypeError(
+            `mutationObject.reducers["${reducersKey}"] can not contain "${SEPARATOR}"`
+          );
+        }
         if (reducersCentersKeysFlag[reducersKey]) {
           throwRducersCentersError(reducersKey);
         } else {
@@ -463,6 +459,11 @@ class ConvertMutationsObjects {
       }
       const centers = mutationObject.centers;
       for (let centersKey in centers) {
+        if (!!~centersKey.indexOf(SEPARATOR)) {
+          throw new TypeError(
+            `mutationObject.centers["${centersKey}"] can not contain "${SEPARATOR}"`
+          );
+        }
         if (reducersCentersKeysFlag[centersKey]) {
           throwRducersCentersError(centersKey);
         } else {
