@@ -16,11 +16,6 @@ export function randomString() {
  * @return undefined
  */
 export function checkActionType(action) {
-  if (!isPlainObject(action)) {
-    throw new TypeError(
-      `Expect action to be a plain object.But the action is ${action.type}.`
-    );
-  }
   if (typeof action.type !== 'string') {
     throw new TypeError(
       `Expect action.type to be a string.But the action.type is ${action.type}.`

@@ -27,12 +27,9 @@ function configCreateStore(plugin = {}, options = {}) {
   const mutationObjectByNamespace = {};
   /**
    * 按照namespace的方式存放到mutationObjectByNamespace
-   * @param {object | array} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
+   * @param {object | array} mutationObjects 请看functions-to.anys.js和conver-mutation-object.js注释
    */
-  function setMutationObjectByNamespace(mutationObjects = {}) {
-    if (!Array.isArray(mutationObjects)) {
-      mutationObjects = [mutationObjects];
-    }
+  function setMutationObjectByNamespace(mutationObjects) {
     mutationObjects.forEach(mutationObject => {
       const namespace = mutationObject.namespace;
       if (namespace) {
