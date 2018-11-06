@@ -1,5 +1,8 @@
 {
-  "packages": ["./", "examples/*"],
-  "version": "0.0.1",
+  "packages": [
+    "./",
+    "examples/*"
+  ],
+  "version": "0.0.2",
   "hoist": true
 }
