@@ -6,9 +6,35 @@
   "module": "es/redux-mutation.js",
   "homepage": "https://github.com/dog-days/redux-mutation",
   "repository": "https://github.com/dog-days/redux-mutation",
-  "bugs": "github:reduxjs/redux/issues",
+  "bugs": "https://github.com/dog-days/redux-mutation/issues",
+  "author": "xianshannan <xianshannan@qq.com>",
+  "description": "Mutation object structure for redux",
+  "keywords": [
+    "redux",
+    "reducer",
+    "state",
+    "predictable",
+    "functional",
+    "immutable",
+    "hot",
+    "live",
+    "replay",
+    "flux",
+    "elm",
+    "redux-center",
+    "redux-mutation",
+    "dva",
+    "mutation object"
+  ],
+  "files": [
+    "dist",
+    "lib",
+    "es",
+    "src",
+    "postinstall.js"
+  ],
   "dependencies": {
-    "redux-center": "0.0.4"
+    "redux-center": "0.0.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
@@ -53,7 +79,7 @@
   "scripts": {
     "test": "rimraf coverage && cross-env NODE_ENV=TEST nyc mocha './test/**/*.spec.js'",
     "test-special": "rimraf coverage && cross-env NODE_ENV=TEST nyc mocha",
-    "postinstall": "npm run bootstrap",
+    "postinstall": "node ./postinstall.js",
     "bootstrap": "lerna bootstrap --ignore-scripts",
     "lint": "eslint src/**",
     "clean": "rimraf lib dist es coverage",
