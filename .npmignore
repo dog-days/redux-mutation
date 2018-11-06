@@ -6,6 +6,7 @@ _book/
 node_modules/
 src/
 examples/
+docs/
 coverage/
 .DS_Store
 *.tar.gz
