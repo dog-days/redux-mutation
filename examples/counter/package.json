@@ -9,7 +9,7 @@
     "react-scripts": "2.1.0",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
-    "redux-mutation": "0.0.1"
+    "redux-mutation": "0.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
