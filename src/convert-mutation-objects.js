@@ -134,9 +134,6 @@ class ConvertMutationsObjects {
       };
     }
     if (reducersAndCenters.centers) {
-      if (!Array.isArray(extraCenters)) {
-        extraCenters = [extraCenters];
-      }
       if (generatorsToAsync) {
         extraCenters = generatorsToAsync(extraCenters);
       }
@@ -295,17 +292,17 @@ class ConvertMutationsObjects {
             center,
             {
               ...newCenterUtils,
-              put: (action, ...arg) => {
+              put: action => {
                 if (!!~this.allCentersActionTypes.indexOf(action.type)) {
                   throw new Error(
                     `
-                    The centerEnhancer should not interact with centers.
-                    Because it will cause an infinite loop.
-                    The action type is "${action.type}".
-                  `
+                      The centerEnhancer should not interact with centers.
+                      Because it will cause an infinite loop.
+                      The action type is "${action.type}".
+                    `
                   );
                 }
-                return centerUtils.put(action, ...arg);
+                return centerUtils.put(action);
               },
             },
             mutationObject,
