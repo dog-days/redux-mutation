@@ -6,3 +6,6 @@ node_js:
 script: 'npm run test'
 after_success:
   - bash <(curl -s https://codecov.io/bash) -B master
+branches:
+  only:
+    - master
