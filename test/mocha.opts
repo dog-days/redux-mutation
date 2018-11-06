@@ -1,0 +1,5 @@
+--require chai/register-should
+--require @babel/register
+--reporter spec
+
+
