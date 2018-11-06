@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.2",
   "name": "redux-mutation",
   "main": "lib/redux-mutation.js",
   "jsnext:main": "es/redux-mutation.js",
@@ -58,7 +58,7 @@
     "lint": "eslint src/**",
     "clean": "rimraf lib dist es coverage",
     "build": "npm run clean && rollup -c",
-    "build-watch": "rollup -c -w",
+    "build-watch": "rollup -c --watch",
     "build-publish": "npm run test && npm run build && lerna publish",
     "prettier": "prettier --write './**/*(*.js|*.jsx|*.less|*.css)'",
     "counter": "npm run start --prefix examples/counter"
