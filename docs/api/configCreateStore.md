@@ -192,7 +192,7 @@ export default {
       switch (action.type) {
         case currentActionLoadingType:
           newState[currentNamespace] = {
-            ...state.counter,
+            ...state[currentNamespace],
             ...action.payload,
           };
           break;

@@ -1,0 +1,29 @@
+{
+  "title": "Redux-Mutation",
+  "language": "zh-hans",
+  "plugins": [
+    "anchor-navigation-ex",
+    "prism",
+    "-highlight",
+    "github",
+    "-lunr",
+    "-search",
+    "search-pro"
+  ],
+  "pluginsConfig": {
+    "anchor-navigation-ex": {
+      "multipleH1": false
+    },
+    "github": {
+      "url": "https://github.com/dog-days/redux-mutation"
+    },
+    "sharing": {
+      "facebook": true,
+      "twitter": true,
+      "google": false,
+      "weibo": false,
+      "instapaper": false,
+      "vk": false
+    }
+  }
+}
