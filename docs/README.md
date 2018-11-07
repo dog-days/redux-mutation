@@ -1,4 +1,4 @@
-# Summary
+# 使用文档
 
 - [自述](/README.md)
 - [简介](docs/introduction/README.md)
@@ -20,6 +20,6 @@
 - [API 文档](docs/api/README.md)
   - [createStore](docs/api/createStore.md)
     - [store](docs/api/store.md)
-      - [replaceMutationObjects](docs/api/store.md#replaceMutationObjects)
+      - [replaceMutationObjects](docs/api/store.md#replacemutationobjects)
   - [configCreateStore](docs/api/configCreateStore.md)
   - [applyPlugin](docs/api/applyPlugin.md)
