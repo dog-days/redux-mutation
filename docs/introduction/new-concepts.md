@@ -1,6 +1,6 @@
 # 新概念
 
-`redux-mutation`比`redux`新增了两个概念。
+`redux-mutation`比`redux`新增了两个概念，`redux`的核心概念看[这里](https://redux.js.org/introduction/coreconcepts)。
 
 ## center
 

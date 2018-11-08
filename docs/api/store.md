@@ -8,7 +8,17 @@ const store = createStore(...args);
 
 ## Store 方法
 
-### replaceMutationObjects
+### replaceMutationObjects(mutationObjects)
 
+```js
+replaceMutationObjects(mutationObjects);
+```
 
+跟`redux`的`replaceReducer`一样，`replaceMutationObjects`可以用来动态加载`mutationObject`，和热替换。
+
+### 参数
+
+1. `mutationObject` *(array | object)*:
+
+   `mutationObject`定义，详细看[这里](../introduction/new-concepts.md#mutationobject)。
 

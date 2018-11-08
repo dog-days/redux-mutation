@@ -1,5 +1,9 @@
 # 新原则
 
+`redux`的三大原则看[这里](https://redux.js.org/introduction/threeprinciples)。
+
+## 异步等耗时逻辑交给center处理
+
 异步请求、相对复杂的或者耗时数据处理等，先在`center`中处理，然后传递到`reducer`中处理。例如：
 
 ```js

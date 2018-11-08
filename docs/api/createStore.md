@@ -37,7 +37,7 @@ const createStore = configCreateStore(...args);
 
    - `array`
 
-     详细看[这里](/docs/introduction/new-concepts.html#mutationObject)
+     详细看[这里](../introduction/new-concepts.md#mutationobject)。
 
 2. [`preloadedState`] *(any)*：**跟`redux`的一样，没变化。**
 

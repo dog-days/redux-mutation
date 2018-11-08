@@ -119,7 +119,7 @@ store.dispatch({ type: 'tester/test' });
 
 ## 文档
 
-- [API 文档](./API.md)
+- [API 文档](./docs/api/README.md)
 
 ## 在浏览器中使用 umd 方式
 
@@ -130,10 +130,10 @@ store.dispatch({ type: 'tester/test' });
 - https://unpkg.com/redux-mutation/dist/redux-mutation.js
 - https://unpkg.com/redux-mutation/dist/redux-mutation.min.js
 
-window.ReduxMutation相当于：
+`const createStore = window.ReduxMutation`相当于：
 
 ```js
-import * as ReduxMuation from 'redux-mutation';
+import { createStore } from 'redux-mutation';
 ```
 
 ### 构建方式
