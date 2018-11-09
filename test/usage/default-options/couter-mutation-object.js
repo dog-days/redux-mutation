@@ -18,5 +18,8 @@ export default {
     async warning_async(action, { put, delay }) {
       await put({ type: `${namespace}/increment` });
     },
+    async put_self_error_async(action, { put, delay }) {
+      await put({ type: 'put_self_error_async' });
+    },
   },
 };

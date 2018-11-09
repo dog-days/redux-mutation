@@ -97,6 +97,13 @@ describe('usage of default options', () => {
     stub.callCount.should.equal(1);
     stub.restore();
   });
+  it('should throw error when putting to self', done => {
+    store
+      .dispatch({ type: `${counterNamspace}/put_self_error_async` })
+      .catch(() => {
+        done();
+      });
+  });
   it('should throw error when using replaceMutationObjects without using plain object', done => {
     try {
       store.replaceMutationObjects();
