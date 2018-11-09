@@ -1,6 +1,6 @@
 # Redux-Mutation
 
-[![build status](https://travis-ci.org/dog-days/redux-mutation.svg?branch=master)](https://travis-ci.org/dog-days/redux-mutation) [![codecov](https://codecov.io/gh/dog-days/redux-mutation/branch/master/graph/badge.svg)](https://codecov.io/gh/dog-days/redux-mutation) [![npm package](https://badge.fury.io/js/redux-mutation.svg)](https://www.npmjs.org/package/redux-mutation) [![NPM downloads](http://img.shields.io/npm/dm/redux-mutation.svg)](https://npmjs.org/package/redux-mutation)
+[![build status](https://travis-ci.org/dog-days/redux-mutation.svg?branch=master)](https://travis-ci.org/dog-days/redux-mutation) [![codecov](https://codecov.io/gh/dog-days/redux-mutation/branch/master/graph/badge.svg)](https://codecov.io/gh/dog-days/redux-mutation) [![npm package](https://badge.fury.io/js/redux-mutation.svg)](https://www.npmjs.org/package/redux-mutation) [![NPM downloads](http://img.shields.io/npm/dm/redux-mutation.svg)](https://npmjs.org/package/redux-mutation) ![](https://img.shields.io/badge/minzipped%20size-~3.8kb-brightgreen.svg)
 
 > 你完全可以使用`redux-mutation`替换`redux`。
 
