@@ -266,15 +266,36 @@ class ConvertMutationsObjects {
     { action, centerUtils }
   ) {
     const put = this.createNewPut(centerUtils.put, namespace);
-    for (let key in centersObject) {
+    const newCenterUtils = {
+      ...centerUtils,
+      put,
+    };
+    const enhancerPut = action => {
+      if (!!~this.allCentersActionTypes.indexOf(action.type)) {
+        throw new Error(
+          `
+            The centerEnhancer should not interact with centers.
+            Because it will cause an infinite loop.
+            The action type is "${action.type}".
+          `
+        );
+      }
+      return centerUtils.put(action);
+    };
+    if (typeof centersObject === 'function') {
+      centersObject = centersObject(action, newCenterUtils);
+    }
+    for (let centerName in centersObject) {
       // console.log(key);
-      const fn = centersObject[key];
+      const fn = centersObject[centerName];
       if (typeof fn !== 'function') {
         //忽略非函数的属性
         continue;
       }
       //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
-      if (action.type === this.getActionType(namespace, key)) {
+      if (action.type === this.getActionType(namespace, centerName)) {
+        //当前运行的centerName，put中需使用
+        this.currentCenterName = centerName;
         let center;
         if (generatorsToAsync) {
           //转换的时候，绑定fn上下文为mutationObject
@@ -283,27 +304,12 @@ class ConvertMutationsObjects {
           // 转换的时候，绑定fn上下文为mutationObject
           center = fn.bind(mutationObject);
         }
-        const newCenterUtils = {
-          ...centerUtils,
-          put,
-        };
         return new Promise(resolve => {
           const result = centerEnhancer(
             center,
             {
               ...newCenterUtils,
-              put: action => {
-                if (!!~this.allCentersActionTypes.indexOf(action.type)) {
-                  throw new Error(
-                    `
-                      The centerEnhancer should not interact with centers.
-                      Because it will cause an infinite loop.
-                      The action type is "${action.type}".
-                    `
-                  );
-                }
-                return centerUtils.put(action);
-              },
+              put: enhancerPut,
             },
             mutationObject,
             action.type
@@ -367,7 +373,12 @@ class ConvertMutationsObjects {
         //那么就可以当做，是在当前的mutationObject进行内部put
         newType = `${lastNamespace}${SEPARATOR}${actionType}`;
       }
-      return originalPut({ ...action, type: newType });
+      return new Promise(resolve => {
+        if (!!~action.type.indexOf(this.currentCenterName)) {
+          throw new Error('Can not put to yourself.');
+        }
+        resolve(originalPut({ ...action, type: newType }));
+      });
     };
   }
 
