@@ -2,7 +2,7 @@ import { combineReducers, compose } from 'redux';
 
 import isPlainObject from './utils/isPlainObject';
 import { SEPARATOR } from './utils/const';
-import { randomString, checkActionType } from './utils/util';
+import { checkActionType } from './utils/util';
 
 /**
  * 转换多个mutationObject结构

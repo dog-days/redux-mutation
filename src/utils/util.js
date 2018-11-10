@@ -1,15 +1,3 @@
-import isPlainObject from './isPlainObject';
-/**
- * 随机字符串
- * @return {string} 返回随机字符串
- */
-export function randomString() {
-  return Math.random()
-    .toString(36)
-    .substring(7)
-    .split('')
-    .join('.');
-}
 /**
  * 检测action是否合法
  * @param {object} action
