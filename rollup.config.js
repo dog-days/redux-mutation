@@ -84,10 +84,10 @@ function createCommonConfigByInput(input, fileName, umdName) {
         indent: false,
         sourcemap: true,
       },
-      external: ['redux'],
-      globals: {
-        redux: 'Redux',
-      },
+      // external: ['redux'],
+      // globals: {
+      //   redux: 'Redux',
+      // },
       plugins: [
         nodeResolve({
           jsnext: true,
@@ -112,10 +112,10 @@ function createCommonConfigByInput(input, fileName, umdName) {
         indent: false,
         sourcemap: true,
       },
-      external: ['redux'],
-      globals: {
-        redux: 'Redux',
-      },
+      // external: ['redux'],
+      // globals: {
+      //   redux: 'Redux',
+      // },
       plugins: [
         nodeResolve({
           jsnext: true,
