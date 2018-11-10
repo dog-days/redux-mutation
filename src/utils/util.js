@@ -5,9 +5,7 @@
  */
 export function checkActionType(action) {
   if (typeof action.type !== 'string') {
-    throw new TypeError(
-      `Expect action.type to be a string.But the action.type is ${action.type}.`
-    );
+    throw new TypeError('Expect action.type to be a string.');
   }
 }
 

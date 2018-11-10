@@ -17,7 +17,7 @@ import isPlainObject from './utils/isPlainObject';
  * @param {object} options 配置项，目前只有centers配置
  * @return {object} ...createStore(...args)，返回的值跟redux createStore的是一致的。
  */
-function customStore(options) {
+export default function configBasicCreateStore(options) {
   /**
    * @param {object} reducerAndCenters 整合了reducers和centers，也可以直接当做reducer，格式如下
    *  {
@@ -82,5 +82,3 @@ function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
     replaceCenters(centers);
   };
 }
-const createStore = customStore();
-export { createStore, customStore };

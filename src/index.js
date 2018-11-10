@@ -1,4 +1,4 @@
-import { createStore, configCreateStore } from './redux-mutation';
+import { createStore, configCreateStore } from './configCreateStore';
 import {
   combineReducers,
   bindActionCreators,
@@ -8,7 +8,7 @@ import {
 } from 'redux';
 
 import { SEPARATOR } from './utils/const';
-import applyPlugin from './apply-plugin';
+import applyPlugin from './applyPlugin';
 
 export {
   combineReducers,

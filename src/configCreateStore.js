@@ -1,6 +1,6 @@
-import { customStore as customBasicStore } from './redux-basic';
-import convertMutations from './convert-mutations';
-import functionsToAnys from './functions-to-anys';
+import configBasicCreateStore from './configBasicCreateStore';
+import convertMutations from './convertMutations';
+import functionsToAnys from './functionsToAnys';
 import isPlainObject from './utils/isPlainObject';
 import { isObjectEmpty } from './utils/util';
 
@@ -54,7 +54,7 @@ function configCreateStore(plugin = {}, options = {}) {
       reducerAndCenters = convertMutations(mutations, options);
     }
     //options不做过滤
-    const store = customBasicStore(options)(
+    const store = configBasicCreateStore(options)(
       reducerAndCenters,
       preloadedState,
       enhancer
