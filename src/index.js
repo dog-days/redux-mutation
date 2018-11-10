@@ -1,4 +1,5 @@
-import { createStore, configCreateStore } from './configCreateStore';
+import configCreateStore from './configCreateStore';
+import createStore from './createStore';
 import {
   combineReducers,
   bindActionCreators,

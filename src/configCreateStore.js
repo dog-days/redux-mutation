@@ -10,7 +10,7 @@ import { isObjectEmpty } from './utils/util';
  * @param {object} options 配置项，centers配置和convertMutations配置
  * @return {object} 返回createStore函数
  */
-function configCreateStore(plugin = {}, options = {}) {
+export default function configCreateStore(plugin = {}, options = {}) {
   options = {
     ...options,
     ...plugin,
@@ -111,6 +111,3 @@ function createReplaceMutations(
     store.replaceReducerAndCenters(reducerAndCenters);
   };
 }
-const createStore = configCreateStore();
-
-export { createStore, configCreateStore };
