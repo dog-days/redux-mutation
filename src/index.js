@@ -109,20 +109,6 @@ function createReplaceMutationObjects(
       if (!mutationObject.namespace) {
         throw new TypeError('Expect mutationObject.namespace to be defined.');
       }
-      if (mutationObjectByNamespace[mutationObject.namespace]) {
-        //redux reducer替换的时候，如果对应的state已经初始化了，那么initialState就会失效。
-        console.warn(
-          `The namespace "${
-            mutationObject.namespace
-          }" of mutationObject will be replaced,and the new "initialState" will lose efficacy because it has been initialized.`
-        );
-        //因为initialState无效，所以可以不定义。
-        //这一步其实，可以不用getState，只要赋值不是undefined就行
-        //下面为了对其上一个已经运行reducer后返回的state值。
-        mutationObject.initialState = store.getState()[
-          mutationObject.namespace
-        ];
-      }
       mutationObjectByNamespace[mutationObject.namespace] = mutationObject;
     });
     //重新赋值

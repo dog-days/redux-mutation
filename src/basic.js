@@ -15,24 +15,6 @@ import createCenter from 'redux-center';
 
 import isPlainObject from './utils/isPlainObject';
 
-try {
-  if (createReduxStore) {
-    //这里必须运行代码，否则打包会被移除。
-    console.log();
-  }
-} catch (e) {
-  throw new Error(
-    `
-        Please use with redux,refering to https://github.com/reduxjs/redux.
-        Umd usage
-        <scrpit src="https://unpkg.com/redux/dist/redux.js"></scrpit>
-        Es6 usage (not recommended)
-        import redux from 'Redux';
-        window.Redux = redux;
-      `
-  );
-}
-
 /**
  * 创建经过修改后的createStore
  * @param {object} options 配置项，目前只有centers配置
@@ -70,18 +52,7 @@ function customStore(options) {
       centers = reducerAndCenters.centers || [];
     } else {
       throw new TypeError(
-        `
-          reducerAndCenters could only be an object or function.For example:
-          {
-            reducers: combineReducers(...args),
-            centers: [
-              function(){},
-              function(){},
-            ]
-          }
-          or
-          combineReducers(...args)
-        `
+        'reducerAndCenters could only be an object or function.'
       );
     }
     let { ...centerOptions } = options;

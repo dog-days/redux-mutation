@@ -65,19 +65,8 @@ class ConvertMutationsObjects {
   }
   getDefaultOptions(options) {
     return {
-      reducerEnhancer: function(originalReducer) {
-        return (...args) => {
-          return originalReducer(...args);
-        };
-      },
-      centerEnhancer: function(center) {
-        return (...args) => {
-          return new Promise(resolve => {
-            const result = center(...args);
-            resolve(result);
-          });
-        };
-      },
+      reducerEnhancer: originalReducer => (...args) => originalReducer(...args),
+      centerEnhancer: center => (...args) => center(...args),
       ...options,
     };
   }
@@ -95,27 +84,15 @@ class ConvertMutationsObjects {
       mutationObjects = [mutationObjects];
     }
     this.checkMutationObjects(mutationObjects);
-    const randomReducerKey = randomString();
     const reducersAndCenters = mutationObjects.reduce(
       (reducersAndCenters, mutationObject) => {
-        if (reducersAndCenters.reducers[randomReducerKey]) {
-          //reucers不为空对象时，删除默认的reducer
-          delete reducersAndCenters.reducers[randomReducerKey];
-        }
-        const namespace = mutationObject.namespace;
         let { reducer, center } = this.convertMutationsObject(mutationObject);
-        reducersAndCenters.reducers[namespace] = reducer;
+        reducersAndCenters.reducers[mutationObject.namespace] = reducer;
         reducersAndCenters.centers.push(center);
         return reducersAndCenters;
       },
       {
-        reducers: {
-          //reducers为空的时候会提示错误，传递一个reducer
-          //可以消除错误提示。
-          [randomReducerKey]: function() {
-            return null;
-          },
-        },
+        reducers: {},
         //跟redux-centers不一致，这里需要其他数据
         //{[namespace]: {center,mutationObject}}
         centers: [],
@@ -167,11 +144,8 @@ class ConvertMutationsObjects {
    *  }
    */
   convertMutationsObject(mutationObject) {
-    this.checkMutationObjectVariableType(mutationObject);
     const { centersAliasName = 'effects', ...otherOptions } = this.options;
     const namespace = mutationObject.namespace;
-    this.checkMutationObjectField(mutationObject, 'namespace');
-    this.checkMutationObjectField(mutationObject, ['initialState', 'state']);
     const reducersObject = mutationObject.reducers || {};
     const centersObject =
       mutationObject.centers || mutationObject[centersAliasName] || {};
@@ -197,14 +171,11 @@ class ConvertMutationsObjects {
       },
       center: (action, centerUtils) => {
         checkActionType(action);
-        return new Promise(resolve => {
-          const result = this.centerFunctionsToOneFunctionByAction(
-            centersObject,
-            { namespace, mutationObject, ...otherOptions },
-            { action, centerUtils }
-          );
-          resolve(result);
-        });
+        return this.centerFunctionsToOneFunctionByAction(
+          centersObject,
+          { namespace, mutationObject, ...otherOptions },
+          { action, centerUtils }
+        );
       },
     };
   }
@@ -304,18 +275,15 @@ class ConvertMutationsObjects {
           // 转换的时候，绑定fn上下文为mutationObject
           center = fn.bind(mutationObject);
         }
-        return new Promise(resolve => {
-          const result = centerEnhancer(
-            center,
-            {
-              ...newCenterUtils,
-              put: enhancerPut,
-            },
-            mutationObject,
-            action.type
-          )(action, newCenterUtils);
-          resolve(result);
-        });
+        return centerEnhancer(
+          center,
+          {
+            ...newCenterUtils,
+            put: enhancerPut,
+          },
+          mutationObject,
+          action.type
+        )(action, newCenterUtils);
       }
     }
     //center配置shouldRunReducer=false，就必须返回true
@@ -352,8 +320,7 @@ class ConvertMutationsObjects {
       if (actionType.indexOf(`${namespace}${SEPARATOR}`) === 0) {
         console.warn(
           `
-            When using "put" in the current mutationObject，
-            you can use function name without namespace.
+            When using "put", you can use function name without namespace.
             You should use in this way:
             await put({
               type: ${actionType.split(`${namespace}${SEPARATOR}`)[1]};
@@ -375,7 +342,7 @@ class ConvertMutationsObjects {
       }
       return new Promise(resolve => {
         if (!!~action.type.indexOf(this.currentCenterName)) {
-          throw new Error('Can not put to yourself.');
+          throw new Error('Can not put to center itself.');
         }
         resolve(originalPut({ ...action, type: newType }));
       });
@@ -400,32 +367,11 @@ class ConvertMutationsObjects {
       field = tempField;
     }
     if (mutationObject[field] === undefined) {
-      throw new Error(
-        `
-        Expect mutationObject[${defaultField}] be defined.For example:
-        {
-          namespace: 'test',
-          //initailState alias as state
-          //state : {},
-          initailState: 'state',
-          reducers: {},
-          centers: {}
-        }
-      `
-      );
+      throw new Error(`Expect mutationObject[${defaultField}] be defined.`);
     }
   }
   /**
-   * 检测mutationObject类型
-   * @param {object} mutationObject
-   */
-  checkMutationObjectVariableType(mutationObject) {
-    if (!isPlainObject(mutationObject)) {
-      throw new TypeError('Expect mutationObject to be an plain object.');
-    }
-    return mutationObject;
-  }
-  /**
+   * 验证mutationObject类型是否为plain object
    * 验证namespace是否重复
    * 验证所有reducers和centers的属性名是否重复，重复则抛出异常
    * 验证reducer函数名和center函数名是否合法
@@ -437,7 +383,11 @@ class ConvertMutationsObjects {
     mutationObjects.forEach(mutationObject => {
       //存放所有当前mutationObject的reducers和centers的property
       const reducersCentersKeysFlag = {};
-      this.checkMutationObjectVariableType(mutationObject);
+      if (!isPlainObject(mutationObject)) {
+        throw new TypeError('Expect mutationObject to be an plain object.');
+      }
+      this.checkMutationObjectField(mutationObject, 'namespace');
+      this.checkMutationObjectField(mutationObject, ['initialState', 'state']);
       if (allNamespace[mutationObject.namespace]) {
         throw new Error(
           `The namespace "${mutationObject.namespace}" is exited.`
