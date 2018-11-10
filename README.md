@@ -61,7 +61,7 @@ npm i redux redux-mutation
 ```js
 import { createStore } from 'redux-mutation';
 
-const mutationObjects = [
+const mutations = [
   {
     //state: 0,也可以
     initialState: 0,
@@ -110,7 +110,7 @@ const mutationObjects = [
     },
   },
 ];
-const store = createStore(mutationObjects);
+const store = createStore(mutations);
 store.subscribe(function() {
   console.log('rendered', 'You can render dom here.');
 });

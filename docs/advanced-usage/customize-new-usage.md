@@ -1,11 +1,11 @@
-# 使用mutationObject
+# 使用mutation
 
-`redux-mutation`兼容`redux`所有用法，使用`mutationObject`代替reducer是`redux-mutaion`的主要用法。
+`redux-mutation`兼容`redux`所有用法，使用`mutation`代替reducer是`redux-mutaion`的主要用法。
 
 ```js
 import { createStore } from 'redux-mutation';
 
-const mutationObjects = [
+const mutations = [
   function() {
     //可以使用函数返回对象，多一层作用域保护变量
     return {
@@ -57,7 +57,7 @@ const mutationObjects = [
     },
   },
 ];
-const store = createStore(mutationObjects);
+const store = createStore(mutations);
 store.subscribe(function() {
   console.log('rendered', 'You can render dom here.');
 });

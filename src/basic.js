@@ -1,7 +1,7 @@
 /**
- * src/basic.js是不包含combineCenters和converMutationObjects
+ * src/basic.js是不包含combineCenters和converMutations
  * 如果没用到gennerators最好直接使用basic文件
- * src/index.js在src/basic的基础上包含了combineCenters和converMutationObjects
+ * src/index.js在src/basic的基础上包含了combineCenters和converMutations
  */
 import {
   createStore as createReduxStore,

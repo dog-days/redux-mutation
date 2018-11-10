@@ -1,14 +1,14 @@
 # createStore
 
 ```
-createStore(mutationObjects, [preloadedState], [enhancer])
+createStore(mutations, [preloadedState], [enhancer])
 ```
 
 > 创建一个 Redux [store](https://www.redux.org.cn/docs/api/Store.html) 来以存放应用中所有的 state。
 >
 > 应用中应有且仅有一个 store。
 
-除了参数`mutationObjects`不一样，其他的参数跟`redux`的[createStore](https://redux.js.org/api/createstore)参数是一样的。
+除了参数`mutations`不一样，其他的参数跟`redux`的[createStore](https://redux.js.org/api/createstore)参数是一样的。
 
 ### 引入
 
@@ -25,7 +25,7 @@ const createStore = configCreateStore(...args);
 
 ### 参数
 
-1. `mutationObjects` *(function | object | array)*：
+1. `mutations` *(function | object | array)*：
 
    - `function`
 
@@ -69,7 +69,7 @@ const createStore = configCreateStore(...args);
 ```js
 import { createStore } from 'redux-mutation';
 
-const mutationObjects = [
+const mutations = [
   {
     initialState: 0,
     namespace: 'counter',
@@ -103,7 +103,7 @@ const mutationObjects = [
     },
   },
 ];
-const store = createStore(mutationObjects);
+const store = createStore(mutations);
 store.subscribe(function() {
   console.log('rendered', store.getState());
 });

@@ -6,7 +6,7 @@ import {
   __DO_NOT_USE__ActionTypes,
   customStore as customBasicStore,
 } from './basic';
-import convertMutationObjects from './convert-mutation-objects';
+import convertMutations from './convert-mutations';
 import functionsToAnys from './functions-to-anys';
 import applyPlugin from './apply-plugin';
 import isPlainObject from './utils/isPlainObject';
@@ -16,7 +16,7 @@ import { SEPARATOR } from './utils/const';
 /**
  * 创建经过修改后的createStore
  * @param {object} plugin plugin 会整合进options，可以理解为特殊的options，配合applyPlugin使用
- * @param {object} options 配置项，centers配置和convertMutationObjects配置
+ * @param {object} options 配置项，centers配置和convertMutations配置
  * @return {object} 返回createStore函数
  */
 function configCreateStore(plugin = {}, options = {}) {
@@ -24,43 +24,43 @@ function configCreateStore(plugin = {}, options = {}) {
     ...options,
     ...plugin,
   };
-  const mutationObjectByNamespace = {};
+  const mutationByNamespace = {};
   /**
-   * 按照namespace的方式存放到mutationObjectByNamespace
-   * @param {object | array} mutationObjects 请看functions-to.anys.js和conver-mutation-object.js注释
+   * 按照namespace的方式存放到mutationByNamespace
+   * @param {object | array} mutations 请看functions-to.anys.js和conver-mutation-object.js注释
    */
-  function setMutationObjectByNamespace(mutationObjects) {
-    mutationObjects.forEach(mutationObject => {
-      const namespace = mutationObject.namespace;
+  function setMutationByNamespace(mutations) {
+    mutations.forEach(mutation => {
+      const namespace = mutation.namespace;
       if (namespace) {
-        mutationObjectByNamespace[namespace] = mutationObject;
+        mutationByNamespace[namespace] = mutation;
       }
     });
   }
   /**
-   * @param {function object | array} mutationObjects 请看文件conver-mutation-object.js注释
+   * @param {function object | array} mutations 请看文件conver-mutation-object.js注释
    * @param preloadedState 跟redux的createStore的一样，没做修改
    * @param enhancer 跟redux的createStore的一样，没做修改
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
    */
-  return (mutationObjects, preloadedState, enhancer) => {
+  return (mutations, preloadedState, enhancer) => {
     let reducerAndCenters = {};
-    let onlyOriginalReducer = false; //mutationObjects格式是否是reducer格式
-    if (typeof mutationObjects === 'function') {
-      //mutationObjects是redux reducer格式
+    let onlyOriginalReducer = false; //mutations格式是否是reducer格式
+    if (typeof mutations === 'function') {
+      //mutations是redux reducer格式
       //即function(state,action)
       onlyOriginalReducer = true;
-      reducerAndCenters.reducer = mutationObjects;
+      reducerAndCenters.reducer = mutations;
       if (!isObjectEmpty(options)) {
         console.warn(
-          'options param will not work when mutationObjects is reducer format.'
+          'options param will not work when mutations is reducer format.'
         );
       }
     } else {
-      mutationObjects = functionsToAnys(mutationObjects);
-      setMutationObjectByNamespace(mutationObjects);
+      mutations = functionsToAnys(mutations);
+      setMutationByNamespace(mutations);
       //options不做过滤
-      reducerAndCenters = convertMutationObjects(mutationObjects, options);
+      reducerAndCenters = convertMutations(mutations, options);
     }
     //options不做过滤
     const store = customBasicStore(options)(
@@ -69,11 +69,11 @@ function configCreateStore(plugin = {}, options = {}) {
       enhancer
     );
     return {
-      replaceMutationObjects: createReplaceMutationObjects(
+      replaceMutations: createReplaceMutations(
         {
           store,
           onlyOriginalReducer,
-          mutationObjectByNamespace,
+          mutationByNamespace,
         },
         options
       ),
@@ -83,43 +83,40 @@ function configCreateStore(plugin = {}, options = {}) {
 }
 /**
  * @param {object} options.store redux store实例
- * @param {object} options.onlyOriginalReducer mutationObjects的格式是redux的reducer格式
- * @param {object} options.mutationObjectByNamespace mutationObject的namespace为key的对象
- * @returns {function} replaceMutationObjects函数
+ * @param {object} options.onlyOriginalReducer mutations的格式是redux的reducer格式
+ * @param {object} options.mutationByNamespace mutation的namespace为key的对象
+ * @returns {function} replaceMutations函数
  */
-function createReplaceMutationObjects(
-  { store, onlyOriginalReducer, mutationObjectByNamespace },
+function createReplaceMutations(
+  { store, onlyOriginalReducer, mutationByNamespace },
   options
 ) {
   //热替换或动态加载中使用
   /**
    * 可替换单个和多个
-   * @param {object | array} mutationObjects 请看functions-to.ays.js和conver-mutation-object.js注释
+   * @param {object | array} mutations 请看functions-to.ays.js和conver-mutation-object.js注释
    */
-  return function(newMutationObjects) {
+  return function(newMutations) {
     if (onlyOriginalReducer) {
-      return store.replaceReducer(newMutationObjects);
+      return store.replaceReducer(newMutations);
     }
-    newMutationObjects = functionsToAnys(newMutationObjects);
-    // console.log(newMutationObjects);
-    newMutationObjects.forEach(mutationObject => {
-      if (!isPlainObject(mutationObject)) {
-        throw new TypeError('Expect mutationObject to be an plain object.');
+    newMutations = functionsToAnys(newMutations);
+    // console.log(newMutations);
+    newMutations.forEach(mutation => {
+      if (!isPlainObject(mutation)) {
+        throw new TypeError('Expect mutation to be an plain object.');
       }
-      if (!mutationObject.namespace) {
-        throw new TypeError('Expect mutationObject.namespace to be defined.');
+      if (!mutation.namespace) {
+        throw new TypeError('Expect mutation.namespace to be defined.');
       }
-      mutationObjectByNamespace[mutationObject.namespace] = mutationObject;
+      mutationByNamespace[mutation.namespace] = mutation;
     });
     //重新赋值
-    newMutationObjects = [];
-    for (let key in mutationObjectByNamespace) {
-      newMutationObjects.push(mutationObjectByNamespace[key]);
+    newMutations = [];
+    for (let key in mutationByNamespace) {
+      newMutations.push(mutationByNamespace[key]);
     }
-    const reducerAndCenters = convertMutationObjects(
-      newMutationObjects,
-      options
-    );
+    const reducerAndCenters = convertMutations(newMutations, options);
     store.replaceReducerAndCenters(reducerAndCenters);
   };
 }

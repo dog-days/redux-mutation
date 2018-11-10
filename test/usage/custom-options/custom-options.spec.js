@@ -5,10 +5,10 @@ import { configCreateStore, applyPlugin } from '../../../src';
 import loadingPlugin, { LOADINGFIELdNAME } from './loading-plugin';
 import testPlugin, { defaultState, reducerName } from './test-plugin';
 
-import counterMutationObject, {
+import counterMutation, {
   delayTime,
   namespace as counterNamspace,
-} from './couter-mutation-object';
+} from './couter-mutation';
 
 const centerEnhancerSpy = sinon.spy(loadingPlugin.centerEnhancer);
 loadingPlugin.centerEnhancer = centerEnhancerSpy;
@@ -18,16 +18,14 @@ const testExtraReducerSpy = sinon.spy(testPlugin.extraReducers[reducerName]);
 testPlugin.extraReducers[reducerName] = testExtraReducerSpy;
 const extraCentersSpy = sinon.spy(testPlugin.extraCenters);
 testPlugin.extraCenters = extraCentersSpy;
-const incrementSpy = sinon.spy(counterMutationObject.reducers.increment);
-const incrementAsyncSpy = sinon.spy(
-  counterMutationObject.centers.increment_async
-);
-counterMutationObject.reducers.increment = incrementSpy;
-counterMutationObject.centers.increment_async = incrementAsyncSpy;
+const incrementSpy = sinon.spy(counterMutation.reducers.increment);
+const incrementAsyncSpy = sinon.spy(counterMutation.centers.increment_async);
+counterMutation.reducers.increment = incrementSpy;
+counterMutation.centers.increment_async = incrementAsyncSpy;
 
 const store = configCreateStore(applyPlugin(loadingPlugin, testPlugin), {
   generatorsToAsync,
-})(counterMutationObject);
+})(counterMutation);
 
 describe('custom options usage', () => {
   it('should work correctly with generator', done => {

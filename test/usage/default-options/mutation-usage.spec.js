@@ -1,26 +1,24 @@
 import sinon from 'sinon';
 import { createStore } from '../../../src';
 
-import counterMutationObject, {
+import counterMutation, {
   delayTime,
   namespace as counterNamspace,
-} from './couter-mutation-object';
+} from './couter-mutation';
 
-const incrementSpy = sinon.spy(counterMutationObject.reducers.increment);
-const incrementAsyncSpy = sinon.spy(
-  counterMutationObject.centers.increment_async
-);
-counterMutationObject.reducers.increment = incrementSpy;
-counterMutationObject.centers.increment_async = incrementAsyncSpy;
+const incrementSpy = sinon.spy(counterMutation.reducers.increment);
+const incrementAsyncSpy = sinon.spy(counterMutation.centers.increment_async);
+counterMutation.reducers.increment = incrementSpy;
+counterMutation.centers.increment_async = incrementAsyncSpy;
 
-const store = createStore(counterMutationObject);
+const store = createStore(counterMutation);
 
 describe('usage of default options', () => {
   it('should contain the apis of store', () => {
     // eslint-disable-next-line
-    (!!store.replaceMutationObjects).should.be.true;
+    (!!store.replaceMutations).should.be.true;
   });
-  it('should work correctly with mutationObject', done => {
+  it('should work correctly with mutation', done => {
     //默认设置只要dispatch就会运行center和reducer
     let clearSetTimeout;
     const unsubscribe = store.subscribe(() => {
@@ -34,7 +32,7 @@ describe('usage of default options', () => {
     });
     store.dispatch({ type: `${counterNamspace}/increment_async` });
   });
-  it('should work correctly when using replaceMutationObjects', done => {
+  it('should work correctly when using replaceMutations', done => {
     const incrementSpy = sinon.spy(function(state = 0, action) {
       return state + 1;
     });
@@ -44,7 +42,7 @@ describe('usage of default options', () => {
     ) {
       await put({ type: 'increment' });
     });
-    store.replaceMutationObjects({
+    store.replaceMutations({
       namespace: 'newOne',
       initialState: 0,
       reducers: {
@@ -70,7 +68,7 @@ describe('usage of default options', () => {
     });
     store.dispatch({ type: `newOne/increment_async` });
   });
-  it('should show warning when put inside mutationObject using prefix namespace', done => {
+  it('should show warning when put inside mutation using prefix namespace', done => {
     const stub = sinon.stub(console, 'warn');
     let clearSetTimeout;
     const unsubscribe = store.subscribe(() => {
@@ -86,17 +84,6 @@ describe('usage of default options', () => {
     store.dispatch({ type: `${counterNamspace}/warning_async` });
   });
 
-  it('should show warning when using replaceMutationObjects to replace existing mutationObject.', () => {
-    const stub = sinon.stub(console, 'warn');
-    store.replaceMutationObjects({
-      namespace: 'newOne',
-      initialState: null,
-      centers: {},
-      reducers: {},
-    });
-    stub.callCount.should.equal(1);
-    stub.restore();
-  });
   it('should throw error when putting to self', done => {
     store
       .dispatch({ type: `${counterNamspace}/put_self_error_async` })
@@ -104,17 +91,17 @@ describe('usage of default options', () => {
         done();
       });
   });
-  it('should throw error when using replaceMutationObjects without using plain object', done => {
+  it('should throw error when using replaceMutations without using plain object', done => {
     try {
-      store.replaceMutationObjects();
+      store.replaceMutations();
     } catch (e) {
       done();
     }
   });
 
-  it('should throw error when using replaceMutationObjects without using namespace', done => {
+  it('should throw error when using replaceMutations without using namespace', done => {
     try {
-      store.replaceMutationObjects({
+      store.replaceMutations({
         initialState: null,
         centers: {},
         reducers: {},

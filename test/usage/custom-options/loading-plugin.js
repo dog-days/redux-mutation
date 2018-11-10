@@ -6,9 +6,9 @@ const STARTLOADINGNAMESPACESUFFIXNAME = `${SEPARATOR}start-loading`;
 const ENDLOADINGNAMESPACESUFFIXNAME = `${SEPARATOR}end-loading`;
 export const LOADINGFIELdNAME = '$loading';
 export default {
-  centerEnhancer: function(center, { put }, currentMutationObject, actionType) {
+  centerEnhancer: function(center, { put }, currentMutation, actionType) {
     return async (...args) => {
-      currentNamespace = currentMutationObject.namespace;
+      currentNamespace = currentMutation.namespace;
       currentActionLoadingType = actionType + STARTLOADINGNAMESPACESUFFIXNAME;
       await put({
         type: currentActionLoadingType,
@@ -20,7 +20,7 @@ export default {
       // console.log(currentActionLoadingType, 111);
       //防止中途currentActionLoadingType和currentNamespace被其他dispatch覆盖。
       currentActionLoadingType = actionType + ENDLOADINGNAMESPACESUFFIXNAME;
-      currentNamespace = currentMutationObject.namespace;
+      currentNamespace = currentMutation.namespace;
       // console.log(currentActionLoadingType, 222);
       await put({
         type: currentActionLoadingType,

@@ -1,4 +1,4 @@
-import { namespace } from './couter-mutation-object';
+import { namespace } from './couter-mutation';
 export default {
   centerEnhancer: function(center, { put }) {
     return async (...args) => {

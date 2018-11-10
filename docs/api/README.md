@@ -7,7 +7,7 @@
 ### 顶层 API
 
 - 有变化和新增的 API
-  - [createStore(mutationObjects, [preloadedState], [enhancer])](createStore.md)
+  - [createStore(mutations, [preloadedState], [enhancer])](createStore.md)
   - [configCreateStore([plugins], [options])](configCreateStore.md)
   - [applyPlugin(...plugins)](applyPlugin.md)
 
@@ -20,7 +20,7 @@
 ### Store API
 
 - 有变化和新增的 API
-  - [store.replaceMutationObjects(mutationObjects)](store.md#replaceMutationObjects)
+  - [store.replaceMutations(mutations)](store.md#replaceMutations)
 
 - 无变化的 API
   - [store.getState()](https://redux.js.org/api/store#getState)

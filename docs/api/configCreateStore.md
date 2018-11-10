@@ -53,7 +53,7 @@ const createStore = configCreateStore(applyPlugin(...plugins),options);
      function test(
        center,
        { put, call, select, dispatch, getState },
-       currentMutationObject,
+       currentMutation,
        actionType
      ) {
        //...args=action,{ put,call,select,dispatch,getState }
@@ -96,7 +96,7 @@ const createStore = configCreateStore(applyPlugin(...plugins),options);
    | options           | 类型     | 说明                                | 默认值  |
    | ----------------- | -------- | ----------------------------------- | ------- |
    | generatorsToAsync | function | generator转async                    | 无      |
-   | centersAliasName  | string   | mutationObject.centers别名，兼容dva | effects |
+   | centersAliasName  | string   | mutation.centers别名，兼容dva | effects |
    | shouldRunReducer  | boolean  | redux-center 高级选项，可以不理会。 | true    |
 
 ### 返回值
@@ -117,7 +117,7 @@ import {
 } from 'redux-mutation';
 import loadingPlugin from './loading-plugin';
 
-const mutationObjects = [
+const mutations = [
   {
     initialState: {
       value: 2,
@@ -142,10 +142,10 @@ const mutationObjects = [
     },
   },
 ];
-//默认不需要配置，const store = createStore(mutationObjects, applyMiddleware(loggerMiddleware))
+//默认不需要配置，const store = createStore(mutations, applyMiddleware(loggerMiddleware))
 const store = configCreateStore(applyPlugin(loadingPlugin), {
   generatorsToAsync,
-})(mutationObjects, applyMiddleware(loggerMiddleware));
+})(mutations, applyMiddleware(loggerMiddleware));
 store.subscribe(function() {
   console.log('rendered', store.getState());
 });
@@ -163,9 +163,9 @@ const STARTLOADINGNAMESPACESUFFIXNAME = `${SEPARATOR}start-loading`;
 const ENDLOADINGNAMESPACESUFFIXNAME = `${SEPARATOR}end-loading`;
 const LOADINGFIELdNAME = '$loading';
 export default {
-  centerEnhancer: function(center, { put }, currentMutationObject, actionType) {
+  centerEnhancer: function(center, { put }, currentMutation, actionType) {
     return async (...args) => {
-      currentNamespace = currentMutationObject.namespace;
+      currentNamespace = currentMutation.namespace;
       currentActionLoadingType = actionType + STARTLOADINGNAMESPACESUFFIXNAME;
       await put({
         type: currentActionLoadingType,
@@ -176,7 +176,7 @@ export default {
       const result = await center(...args);
       //防止中途currentActionLoadingType和currentNamespace被其他dispatch覆盖。
       currentActionLoadingType = actionType + ENDLOADINGNAMESPACESUFFIXNAME;
-      currentNamespace = currentMutationObject.namespace;
+      currentNamespace = currentMutation.namespace;
       await put({
         type: currentActionLoadingType,
         payload: {

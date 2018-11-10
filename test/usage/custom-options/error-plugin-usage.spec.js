@@ -1,13 +1,11 @@
 import { configCreateStore, applyPlugin } from '../../../src';
 import errorPlugin from './error-plugin';
 
-import counterMutationObject, {
+import counterMutation, {
   namespace as counterNamspace,
-} from './couter-mutation-object';
+} from './couter-mutation';
 
-const store = configCreateStore(applyPlugin(errorPlugin))(
-  counterMutationObject
-);
+const store = configCreateStore(applyPlugin(errorPlugin))(counterMutation);
 describe('CenterEnhancer', function() {
   it('should throw error when put inside the existing centers.', done => {
     const unsubscribe = store.subscribe(() => {

@@ -7,7 +7,7 @@ describe('function tpye of mutation object center', () => {
       return state;
     });
     let centerSpy;
-    const mutationObjects = [
+    const mutations = [
       function() {
         return {
           namespace: 'test',
@@ -26,7 +26,7 @@ describe('function tpye of mutation object center', () => {
         };
       },
     ];
-    const store = createStore(mutationObjects);
+    const store = createStore(mutations);
     let clearSetTimeout;
     const unsubscribe = store.subscribe(() => {
       clearTimeout(clearSetTimeout);

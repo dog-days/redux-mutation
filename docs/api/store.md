@@ -4,21 +4,21 @@
 const store = createStore(...args);
 ```
 
-这里`store`只新增了一个方法 [replaceMutationObjects](/docs/api/store.md#replaceMutationObjects)，其他用法可以参考[redux store](https://redux.js.org/api/store)。
+这里`store`只新增了一个方法 [replaceMutations](/docs/api/store.md#replaceMutations)，其他用法可以参考[redux store](https://redux.js.org/api/store)。
 
 ## Store 方法
 
-### replaceMutationObjects(mutationObjects)
+### replaceMutations(mutations)
 
 ```js
-replaceMutationObjects(mutationObjects);
+replaceMutations(mutations);
 ```
 
-跟`redux`的`replaceReducer`一样，`replaceMutationObjects`可以用来动态加载`mutationObject`，和热替换。
+跟`redux`的`replaceReducer`一样，`replaceMutations`可以用来动态加载`mutations`，和热替换。
 
 ### 参数
 
-1. `mutationObject` *(array | object)*:
+1. `mutations` *(array | object)*:
 
-   `mutationObject`定义，详细看[这里](../introduction/new-concepts.md#mutationobject)。
+   `mutation`定义，详细看[这里](../introduction/new-concepts.md#mutationobject)。
 

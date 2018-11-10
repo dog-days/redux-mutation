@@ -16,9 +16,9 @@ describe('usage of default options', () => {
     });
     store.dispatch({ type: 'test' });
   });
-  it('should work correctly with replaceMutationObjects', done => {
+  it('should work correctly with replaceMutations', done => {
     const reducerSpy = sinon.spy();
-    store.replaceMutationObjects(reducerSpy);
+    store.replaceMutations(reducerSpy);
     const prevReducerSpyCallCount = reducerSpy.callCount;
     const unsubscribe = store.subscribe(() => {
       reducerSpy.callCount.should.equal(prevReducerSpyCallCount + 1);

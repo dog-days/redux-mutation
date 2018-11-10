@@ -6,7 +6,7 @@ describe('function tpye of mutation object', () => {
     const reducerSpy = sinon.spy(function(state = 0) {
       return state;
     });
-    const mutationObjects = [
+    const mutations = [
       function() {
         return {
           namespace: 'test',
@@ -17,7 +17,7 @@ describe('function tpye of mutation object', () => {
         };
       },
     ];
-    const store = createStore(mutationObjects);
+    const store = createStore(mutations);
     const prevReducerCallCount = reducerSpy.callCount;
     store.dispatch({ type: 'test/reducerSpy' });
     reducerSpy.callCount.should.equal(prevReducerCallCount + 1);

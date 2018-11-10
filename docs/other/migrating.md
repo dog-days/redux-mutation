@@ -1,18 +1,18 @@
 # 迁移到 redux-mutation
 
-`redux`迁移到`redux-mutation`十分简单，同时也完全不会影响之前的`reducer`，然后可以逐渐的把`redux reducer`迁移到`mutationObjects`。
+`redux`迁移到`redux-mutation`十分简单，同时也完全不会影响之前的`reducer`，然后可以逐渐的把`redux reducer`迁移到`mutations`。
 
 `index.js`
 
 ```js
 import { createMutaionStore, applyPlugin } from 'redux-mutation';
 import reducers from './reducers';
-import mutationObjects from './mutationObjects';
+import mutations from './mutations';
 
 //无需使用combineReducers
 const store = createMutaionStore(applyPlugin(
   { extraReducers: reducers }
-))(mutationObjects);
+))(mutations);
 ```
 
 `reducers.js`
@@ -40,24 +40,24 @@ export default const reducers = {
 }
 ```
 
-`mutationObjects.js`
+`mutations.js`
 
 ```js
-const mutationObjectOne = {
-  namespace: 'mutationObjectOne',
+const mutationOne = {
+  namespace: 'mutationOne',
   initialState: 0,
   reducers: {},
   centers: {}
 }
-const mutationObjectOne2 = {
-  namespace: 'mutationObjectOne2',
+const mutationOne2 = {
+  namespace: 'mutationOne2',
   initialState: 0,
   reducers: {},
   centers: {}
 }
-export default const mutationObjects = [
-  mutationObjectOne,
-  mutationObjectOne2
+export default const mutations = [
+  mutationOne,
+  mutationOne2
 ]
 ```
 

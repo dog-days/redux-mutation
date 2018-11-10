@@ -3,15 +3,12 @@ import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux-mutation';
 import loggerMiddleware from 'redux-logger';
 
-import counterMutationObject, {
+import counterMutation, {
   namespace as counterNamspace,
-} from './couter-mutation-object';
+} from './couter-mutation';
 import Counter from './Counter';
 
-const store = createStore(
-  counterMutationObject,
-  applyMiddleware(loggerMiddleware)
-);
+const store = createStore(counterMutation, applyMiddleware(loggerMiddleware));
 
 const dispatchAction = type => store.dispatch({ type });
 

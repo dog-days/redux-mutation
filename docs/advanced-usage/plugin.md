@@ -7,7 +7,7 @@ import { createMutationStore, applyPlugin } from 'redux-mutation';
 import generatorsToAsync from 'redux-center/lib/generators-to-async';
 import pluginOne form './pluginOne'
 
-const mutationObjects = [
+const mutations = [
   {
     //state: 0,也可以
     initialState: 0,
@@ -23,7 +23,7 @@ const mutationObjects = [
 const store = createMutationStore(
   applyPlugin(pluginOne), 
   { generatorsToAsync }
-)(mutationObjects);
+)(mutations);
 ```
 
 `pluginOne.js`
@@ -41,9 +41,9 @@ export default const pluginOne = {
     },
   ],
   //只有center规则命中这里才会运行，这点跟reducerEnhancer不一样
-  centerEnhancer: function(center, { put }, currentMutationObject, actionType) {
+  centerEnhancer: function(center, { put }, currentMutation, actionType) {
     return async (...args) => {
-      // console.log(currentMutationObject);
+      // console.log(currentMutation);
       //这里可以拦截center
       await put({ type: 'loading', payload: true });
       const result = await center(...args);

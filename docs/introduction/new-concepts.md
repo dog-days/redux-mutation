@@ -19,9 +19,9 @@ async function centerExample(action,{ put }){
 }
 ```
 
-## mutationObject
+## mutation
 
-`mutationObject`整合了reducers和centers。
+`mutation`整合了reducers和centers。
 
 ### 结构定义
 
@@ -40,7 +40,7 @@ async function centerExample(action,{ put }){
 
 ### 例子
 
-`mutationObject`例子：
+`mutation`例子：
 
 ```js
 [

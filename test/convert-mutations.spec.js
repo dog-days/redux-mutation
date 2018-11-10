@@ -1,11 +1,11 @@
-import convertMutationObjects from '../src/convert-mutation-objects';
+import convertMutations from '../src/convert-mutations';
 import { SEPARATOR } from '../src/utils/const';
 
 //eslint-disable-next-line
-describe('convertMutationObjects', () => {
+describe('convertMutations', () => {
   //正常运行的测试放前面
   it('should work correctly with `initialState`.', () => {
-    let reducersAndCenters = convertMutationObjects({
+    let reducersAndCenters = convertMutations({
       namespace: 'test',
       initialState: null,
       reducers: {
@@ -20,7 +20,7 @@ describe('convertMutationObjects', () => {
     reducersAndCenters.centers[0].should.be.a('function');
   });
   it('should work correctly with `state`.', () => {
-    let reducersAndCenters = convertMutationObjects({
+    let reducersAndCenters = convertMutations({
       namespace: 'test',
       state: null,
       reducers: {
@@ -36,7 +36,7 @@ describe('convertMutationObjects', () => {
   });
 
   it('should work correctly without centers and reducers.', () => {
-    let reducersAndCenters = convertMutationObjects({
+    let reducersAndCenters = convertMutations({
       namespace: 'test',
       initialState: null,
     });
@@ -46,7 +46,7 @@ describe('convertMutationObjects', () => {
   });
 
   it('should work correctly when centers and reducers is empty.', () => {
-    let reducersAndCenters = convertMutationObjects({
+    let reducersAndCenters = convertMutations({
       namespace: 'test',
       initialState: null,
       reducers: {},
@@ -58,7 +58,7 @@ describe('convertMutationObjects', () => {
   });
 
   it('should not throw error when centers or reducers property is not a function', () => {
-    convertMutationObjects({
+    convertMutations({
       namespace: 'test',
       initialState: null,
       reducers: {
@@ -72,7 +72,7 @@ describe('convertMutationObjects', () => {
 
   it('should throw error when first param  is undefined', done => {
     try {
-      convertMutationObjects();
+      convertMutations();
     } catch (e) {
       done();
     }
@@ -80,7 +80,7 @@ describe('convertMutationObjects', () => {
 
   it('should throw error when the first params is [undefined]', done => {
     try {
-      convertMutationObjects([undefined]);
+      convertMutations([undefined]);
     } catch (e) {
       done();
     }
@@ -88,7 +88,7 @@ describe('convertMutationObjects', () => {
 
   it('should throw error when the namespace is not defined', done => {
     try {
-      convertMutationObjects({
+      convertMutations({
         initialState: null,
         reducers: {},
         centers: {},
@@ -100,13 +100,15 @@ describe('convertMutationObjects', () => {
 
   it('should throw error when namespace is repeated', done => {
     try {
-      convertMutationObjects([
+      convertMutations([
         {
+          initialState: null,
           namespace: 'test',
           reducers: {},
           centers: {},
         },
         {
+          initialState: null,
           namespace: 'test',
           reducers: {},
           centers: {},
@@ -119,8 +121,9 @@ describe('convertMutationObjects', () => {
 
   it('should throw error when the center name is repeated with with reducer', done => {
     try {
-      convertMutationObjects({
+      convertMutations({
         namespace: 'test',
+        initialState: null,
         reducers: { test: function() {} },
         centers: { test: function() {} },
       });
@@ -131,7 +134,7 @@ describe('convertMutationObjects', () => {
 
   it('should throw error without `initialState` or `state`', done => {
     try {
-      convertMutationObjects({
+      convertMutations({
         namespace: 'test',
         reducers: {},
         centers: {},
@@ -142,7 +145,7 @@ describe('convertMutationObjects', () => {
   });
   it(`should throw error when reducer name contain "${SEPARATOR}"`, done => {
     try {
-      convertMutationObjects({
+      convertMutations({
         namespace: 'test',
         initialState: null,
         reducers: {
@@ -156,7 +159,7 @@ describe('convertMutationObjects', () => {
 
   it(`should throw error when center name contain "${SEPARATOR}"`, done => {
     try {
-      convertMutationObjects({
+      convertMutations({
         namespace: 'test',
         initialState: null,
         centers: {
