@@ -1,6 +1,8 @@
 import sinon from 'sinon';
 import loggerMiddleware from 'redux-logger';
-import { createStore, applyMiddleware } from '../../src/basic';
+
+import { applyMiddleware } from '../../src';
+import { createStore } from '../../src/redux-basic';
 
 function reducer(state = 0, action) {
   switch (action.type) {

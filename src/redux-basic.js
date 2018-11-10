@@ -5,11 +5,8 @@
  */
 import {
   createStore as createReduxStore,
-  combineReducers,
-  bindActionCreators,
   applyMiddleware,
   compose,
-  __DO_NOT_USE__ActionTypes,
 } from 'redux';
 import createCenter from 'redux-center';
 
@@ -86,12 +83,4 @@ function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
   };
 }
 const createStore = customStore();
-export {
-  createStore,
-  combineReducers,
-  bindActionCreators,
-  applyMiddleware,
-  compose,
-  __DO_NOT_USE__ActionTypes,
-  customStore,
-};
+export { createStore, customStore };
