@@ -12,6 +12,16 @@ import createCenter from 'redux-center';
 
 import isPlainObject from './utils/isPlainObject';
 
+function trowReducerAndCentersError(reducerAndCenters) {
+  if (
+    typeof reducerAndCenters !== 'function' &&
+    !isPlainObject(reducerAndCenters)
+  ) {
+    throw new TypeError(
+      'Expect the reducerAndCenters to be a plain object or a function.'
+    );
+  }
+}
 /**
  * 创建经过修改后的createStore
  * @param {object} options 配置项，目前只有centers配置
@@ -31,6 +41,7 @@ export default function configBasicCreateStore(options) {
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
    */
   return (reducerAndCenters, preloadedState, enhancer) => {
+    trowReducerAndCentersError(reducerAndCenters);
     if (
       typeof preloadedState === 'function' &&
       typeof enhancer === 'undefined'
@@ -42,32 +53,33 @@ export default function configBasicCreateStore(options) {
     let reducer = {};
     //不做centers类型判断，由redux-center判断
     let centers = [];
+    let isOnlyReducer = false;
     if (typeof reducerAndCenters === 'function') {
       reducer = reducerAndCenters;
+      isOnlyReducer = true;
     } else if (isPlainObject(reducerAndCenters)) {
       reducer = reducerAndCenters.reducer;
       centers = reducerAndCenters.centers || [];
-    } else {
-      throw new TypeError(
-        'reducerAndCenters could only be an object or function.'
-      );
     }
-    let { ...centerOptions } = options;
-    const centerInstance = createCenter(centers, centerOptions);
-    const centerMiddleware = centerInstance.createCenterMiddleware();
-    if (!enhancer) {
-      enhancer = applyMiddleware(centerMiddleware);
-    } else {
-      enhancer = compose(
-        applyMiddleware(centerMiddleware),
-        enhancer
-      );
+    let centerInstance;
+    if (!isOnlyReducer) {
+      let { ...centerOptions } = options;
+      centerInstance = createCenter(centers, centerOptions);
+      const centerMiddleware = centerInstance.createCenterMiddleware();
+      if (!enhancer) {
+        enhancer = applyMiddleware(centerMiddleware);
+      } else {
+        enhancer = compose(
+          applyMiddleware(centerMiddleware),
+          enhancer
+        );
+      }
     }
     const store = createReduxStore(reducer, preloadedState, enhancer);
     return {
       replaceReducerAndCenters: createReplaceReducerAndCenters(
         store.replaceReducer,
-        centerInstance.replaceCenters
+        !!centerInstance && centerInstance.replaceCenters
       ),
       ...store,
     };
@@ -76,9 +88,15 @@ export default function configBasicCreateStore(options) {
 function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
   //热替换或动态加载中使用
   return reducerAndCenters => {
-    const reducer = reducerAndCenters.reducer;
-    const centers = reducerAndCenters.centers;
+    trowReducerAndCentersError(reducerAndCenters);
+    let reducer;
+    if (!replaceCenters) {
+      reducer = reducerAndCenters;
+    } else {
+      reducer = reducerAndCenters.reducer;
+      const centers = reducerAndCenters.centers;
+      replaceCenters(centers);
+    }
     replaceReducer(reducer);
-    replaceCenters(centers);
   };
 }
