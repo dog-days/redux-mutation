@@ -7,7 +7,7 @@ import { checkActionType } from './utils/util';
 /**
  * 转换多个mutation结构
  * namespace其实就是reducer名
- * @param {object | array} mutations
+ * @param {array} mutations
  *  [
  *    {
  *      namespace: 'test',
@@ -57,10 +57,11 @@ import { checkActionType } from './utils/util';
  */
 class ConvertMutationsObjects {
   constructor(mutations, options = {}) {
-    this.mutations = mutations;
-    this.options = this.getDefaultOptions(options);
     //所有唯一且合法的centers actionType，从mutations的centers中整合出来的。
     this.allCentersActionTypes = [];
+    this.checkMutations(mutations);
+    this.mutations = mutations;
+    this.options = this.getDefaultOptions(options);
     return this.convertMutationsObjects();
   }
   getDefaultOptions(options) {
@@ -80,10 +81,6 @@ class ConvertMutationsObjects {
   convertMutationsObjects() {
     let mutations = this.mutations;
     const { reducerEnhancer } = this.options;
-    if (!Array.isArray(mutations)) {
-      mutations = [mutations];
-    }
-    this.checkMutations(mutations);
     const reducersAndCenters = mutations.reduce(
       (reducersAndCenters, mutation) => {
         let { reducer, center } = this.convertMutationsObject(mutation);
@@ -162,7 +159,7 @@ class ConvertMutationsObjects {
         }
         // console.log(action, initialState, state, namespace);
         //bind是为了后续覆盖reducers和centers的上下问题
-        return this.recducersFunctionsToOneFunctionByAction(
+        return this.toReducer(
           reducersObject,
           { namespace, mutation },
           { state, action }
@@ -170,7 +167,7 @@ class ConvertMutationsObjects {
       },
       center: (action, centerUtils) => {
         checkActionType(action);
-        return this.centerFunctionsToOneFunctionByAction(
+        return this.toCenters(
           centersObject,
           { namespace, mutation, ...otherOptions },
           { action, centerUtils }
@@ -196,17 +193,12 @@ class ConvertMutationsObjects {
    * @param {object} action redux action
    * @return undefined
    */
-  recducersFunctionsToOneFunctionByAction(
-    reducerObject,
-    { namespace, mutation },
-    { state, action }
-  ) {
+  toReducer(reducerObject, { namespace, mutation }, { state, action }) {
+    if (typeof reducerObject === 'function') {
+      reducerObject = reducerObject(state, action);
+    }
     for (let key in reducerObject) {
       const fn = reducerObject[key];
-      if (typeof fn !== 'function') {
-        //忽略非函数的属性
-        continue;
-      }
       //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
       if (action.type === this.getActionType(namespace, key)) {
         //转换的时候，绑定fn上下文为mutation
@@ -230,7 +222,7 @@ class ConvertMutationsObjects {
    * @param {object} centerUtils redux-center的cener函数参数 {put,call,select,dispatch,getState}
    * @return {any}
    */
-  centerFunctionsToOneFunctionByAction(
+  toCenters(
     centersObject,
     { namespace, mutation, generatorsToAsync, centerEnhancer },
     { action, centerUtils }
@@ -243,25 +235,17 @@ class ConvertMutationsObjects {
     const enhancerPut = action => {
       if (!!~this.allCentersActionTypes.indexOf(action.type)) {
         throw new Error(
-          `
-            The centerEnhancer should not interact with centers.
-            Because it will cause an infinite loop.
-            The action type is "${action.type}".
-          `
+          'You can only put to reducer in centerEhancer, otherwise it will cause an infinite loop.'
         );
       }
       return centerUtils.put(action);
     };
     if (typeof centersObject === 'function') {
-      centersObject = centersObject(action, newCenterUtils);
+      centersObject = centersObject(action, newCenterUtils) || {};
     }
     for (let centerName in centersObject) {
       // console.log(key);
       const fn = centersObject[centerName];
-      if (typeof fn !== 'function') {
-        //忽略非函数的属性
-        continue;
-      }
       //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
       if (action.type === this.getActionType(namespace, centerName)) {
         //当前运行的centerName，put中需使用
@@ -349,27 +333,6 @@ class ConvertMutationsObjects {
   }
 
   /**
-   * 检测mutation对象必填的字段
-   * @param {string} mutation 参考下面convertMutationsObject的注释
-   * @param {string | array} field 字段名，如果是数组，那么第一个默认使用的，其他的是别名
-   */
-  checkMutationField(mutation, field) {
-    let defaultField = field;
-    if (Array.isArray(field)) {
-      defaultField = field[0];
-      let tempField;
-      field.forEach(f => {
-        if (mutation[tempField] === undefined) {
-          tempField = f;
-        }
-      });
-      field = tempField;
-    }
-    if (mutation[field] === undefined) {
-      throw new Error(`Expect mutation[${defaultField}] be defined.`);
-    }
-  }
-  /**
    * 验证mutation类型是否为plain object
    * 验证namespace是否重复
    * 验证所有reducers和centers的属性名是否重复，重复则抛出异常
@@ -380,50 +343,64 @@ class ConvertMutationsObjects {
     //存放所有namepsace
     const allNamespace = {};
     mutations.forEach(mutation => {
-      //存放所有当前mutation的reducers和centers的property
-      const reducersCentersKeysFlag = {};
-      if (!isPlainObject(mutation)) {
-        throw new TypeError('Expect mutation to be an plain object.');
+      //configCreateStore中做了mutaion类型判断，所有不用在做判断。
+      if (typeof mutation.namespace !== 'string') {
+        //优先namespace判断
+        throw new TypeError('Expect the namespace to be a string.');
       }
-      this.checkMutationField(mutation, 'namespace');
-      this.checkMutationField(mutation, ['initialState', 'state']);
+      if (mutation.initialState === undefined && mutation.state === undefined) {
+        throw new Error('Expect the initialState or state to be defined.');
+      }
       if (allNamespace[mutation.namespace]) {
-        throw new Error(`The namespace "${mutation.namespace}" is exited.`);
+        throw new Error(`Expect the namespace to be unique.`);
       } else {
         allNamespace[mutation.namespace] = true;
       }
-      function throwRducersCentersError(field) {
-        throw new Error(
-          `Teh current mutation reducers[property] and centers[property] should be unique.\r\nThe namespace is "${
-            mutation.namespace
-          }".And the property is "${field}".`
-        );
-      }
-      const reducers = mutation.reducers;
-      for (let reducersKey in reducers) {
-        if (!!~reducersKey.indexOf(SEPARATOR)) {
-          throw new TypeError(
-            `mutation.reducers["${reducersKey}"] can not contain "${SEPARATOR}"`
-          );
+      //存放所有当前mutation的reducers和centers的property
+      const reducersCentersKeysFlag = {};
+      /**
+       * 检测mutation中的centers或者reducers是否合法
+       * @param {string} type centers or reduers
+       */
+      const checkReducersOrCenters = type => {
+        let targetObject = mutation[type];
+        if (typeof targetObject === 'function') {
+          targetObject = targetObject({}, {}) || {};
         }
-        reducersCentersKeysFlag[reducersKey] = true;
-      }
-      const centers = mutation.centers;
-      for (let centersKey in centers) {
-        if (!!~centersKey.indexOf(SEPARATOR)) {
-          throw new TypeError(
-            `mutation.centers["${centersKey}"] can not contain "${SEPARATOR}"`
-          );
+        if (targetObject !== undefined && !isPlainObject(targetObject)) {
+          throw new TypeError(`Expect the ${type} to be a plain object.`);
         }
-        if (reducersCentersKeysFlag[centersKey]) {
-          throwRducersCentersError(centersKey);
-        } else {
-          reducersCentersKeysFlag[centersKey] = true;
+        for (let key in targetObject) {
+          if (typeof targetObject[key] !== 'function') {
+            throw new TypeError(
+              `Expect the ${
+                type === 'centers' ? 'center' : 'reducer'
+              } to be a function.`
+            );
+          }
+          if (!!~key.indexOf(SEPARATOR)) {
+            throw new Error(
+              `mutation.${type}["${key}"] can not contain "${SEPARATOR}"`
+            );
+          }
+          if (reducersCentersKeysFlag[key]) {
+            throw new Error(
+              `The current mutation reducers.${key} and centers.${key} should be unique.\r\nThe namespace is "${
+                mutation.namespace
+              }".`
+            );
+          } else {
+            reducersCentersKeysFlag[key] = true;
+          }
+          if (type === 'centers') {
+            this.allCentersActionTypes.push(
+              this.getActionType(mutation.namespace, key)
+            );
+          }
         }
-        this.allCentersActionTypes.push(
-          this.getActionType(mutation.namespace, centersKey)
-        );
-      }
+      };
+      checkReducersOrCenters('reducers');
+      checkReducersOrCenters('centers');
     });
   }
 }

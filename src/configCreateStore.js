@@ -4,6 +4,17 @@ import functionsToAnys from './functionsToAnys';
 import isPlainObject from './utils/isPlainObject';
 import { isObjectEmpty } from './utils/util';
 
+function checkMutations(mutations) {
+  if (
+    !Array.isArray(mutations) &&
+    !isPlainObject(mutations) &&
+    typeof mutations !== 'function'
+  ) {
+    throw new TypeError(
+      'Expect the mutations to be an array or a plain object or a function(reducer).'
+    );
+  }
+}
 /**
  * 创建经过修改后的createStore
  * @param {object} plugin plugin 会整合进options，可以理解为特殊的options，配合applyPlugin使用
@@ -35,6 +46,7 @@ export default function configCreateStore(plugin = {}, options = {}) {
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
    */
   return (mutations, preloadedState, enhancer) => {
+    checkMutations(mutations);
     let reducerAndCenters = {};
     let onlyOriginalReducer = false; //mutations格式是否是reducer格式
     if (typeof mutations === 'function') {
@@ -44,7 +56,7 @@ export default function configCreateStore(plugin = {}, options = {}) {
       reducerAndCenters.reducer = mutations;
       if (!isObjectEmpty(options)) {
         console.warn(
-          'options param will not work when mutations is reducer format.'
+          'options param will not work when mutations is reducer format'
         );
       }
     } else {
@@ -88,19 +100,19 @@ function createReplaceMutations(
    * @param {object | array} mutations 请看functions-to.ays.js和conver-mutation-object.js注释
    */
   return function(newMutations) {
+    checkMutations(newMutations);
     if (onlyOriginalReducer) {
       return store.replaceReducer(newMutations);
     }
     newMutations = functionsToAnys(newMutations);
     // console.log(newMutations);
     newMutations.forEach(mutation => {
-      if (!isPlainObject(mutation)) {
-        throw new TypeError('Expect mutation to be an plain object.');
-      }
       if (!mutation.namespace) {
-        throw new TypeError('Expect mutation.namespace to be defined.');
+        throw new TypeError('Expect the mutation namespace to be defined.');
       }
       mutationByNamespace[mutation.namespace] = mutation;
+      //replaceMutations initialState无效。
+      mutationByNamespace[mutation.namespace].initialState = null;
     });
     //重新赋值
     newMutations = [];
