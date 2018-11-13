@@ -1,11 +1,10 @@
-import { namespace } from './couter-mutation';
+import { generatorNamespace } from '../mutaions';
 export default {
   centerEnhancer: function(center, { put }) {
     return async (...args) => {
       await put({
-        type: `${namespace}/test_async`,
+        type: `${generatorNamespace}/test_async`,
       });
-      console.log(...args);
       const result = await center(...args);
       return result;
     };

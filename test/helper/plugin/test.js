@@ -7,7 +7,7 @@ export default {
       return result;
     };
   },
-  extraCenters: function() {},
+  extraCenters: [function() {}],
   extraReducers: {
     [reducerName](state = defaultState) {
       return state;

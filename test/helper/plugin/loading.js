@@ -4,7 +4,7 @@ let currentActionLoadingType;
 let currentNamespace;
 const STARTLOADINGNAMESPACESUFFIXNAME = `${SEPARATOR}start-loading`;
 const ENDLOADINGNAMESPACESUFFIXNAME = `${SEPARATOR}end-loading`;
-export const LOADINGFIELdNAME = '$loading';
+export const LOADINGFIELDNAME = '$loading';
 export default {
   centerEnhancer: function(center, { put }, currentMutation, actionType) {
     return async (...args) => {
@@ -13,7 +13,7 @@ export default {
       await put({
         type: currentActionLoadingType,
         payload: {
-          [LOADINGFIELdNAME]: true,
+          [LOADINGFIELDNAME]: true,
         },
       });
       const result = await center(...args);
@@ -25,7 +25,7 @@ export default {
       await put({
         type: currentActionLoadingType,
         payload: {
-          [LOADINGFIELdNAME]: false,
+          [LOADINGFIELDNAME]: false,
         },
       });
       return result;

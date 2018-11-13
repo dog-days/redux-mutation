@@ -23,6 +23,7 @@ describe('createStore', () => {
     expect(methods).toContain('replaceReducerAndCenters');
     expect(methods).toContain('replaceMutations');
   });
+
   it('throws if the mutations is not an array or a function or a plain object', () => {
     const throwArgs =
       'Expect the mutations to be an array or a plain object or a function';
@@ -38,213 +39,8 @@ describe('createStore', () => {
     //object
     expect(() => createStore(counterMutation)).not.toThrowError();
   });
-  it('throws if using mutations not correctly', () => {
-    const namespaceErrString = 'Expect the namespace to be a string';
-    expect(() => createStore({})).toThrowError(namespaceErrString);
-    expect(() => createStore({ initialState: 'test' })).toThrowError(
-      namespaceErrString
-    );
-    expect(() => createStore({ state: 'test' })).toThrowError(
-      namespaceErrString
-    );
 
-    expect(() => createStore({ namespace: 'test' })).toThrowError(
-      'Expect the initialState or state to be defined'
-    );
-
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        initialState: 'test',
-        centers: {
-          test: function() {},
-        },
-        reducers: {
-          test: function() {},
-        },
-      })
-    ).toThrowError(
-      /The current mutation reducers\.(.*) and centers\.(.*) should be unique/
-    );
-
-    expect(() =>
-      createStore([
-        {
-          namespace: 'test',
-          initialState: 'test',
-        },
-        {
-          namespace: 'test',
-          initialState: 'test',
-        },
-      ])
-    ).toThrowError('Expect the namespace to be unique');
-
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        initialState: 'test',
-        reducers: {
-          [`${SEPARATOR}test`]: () => {},
-        },
-      })
-    ).toThrowError(
-      `mutation.reducers["${SEPARATOR}test"] can not contain "${SEPARATOR}"`
-    );
-
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        initialState: 'test',
-        centers: {
-          [`${SEPARATOR}test`]: () => {},
-        },
-      })
-    ).toThrowError(
-      `mutation.centers["${SEPARATOR}test"] can not contain "${SEPARATOR}"`
-    );
-
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        centers: 'dd',
-      })
-    ).toThrowError('Expect the centers to be a plain object');
-
-    const reducersErrArgs = ['Expect the reducers to be a plain object'];
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: 'dd',
-      })
-    ).toThrowError(...reducersErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: true,
-      })
-    ).toThrowError(...reducersErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: 0,
-      })
-    ).toThrowError(...reducersErrArgs);
-
-    const reducerTypeErrArgs = ['Expect the reducer to be a function'];
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: { test: null },
-      })
-    ).toThrowError(...reducerTypeErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: { test: 1 },
-      })
-    ).toThrowError(...reducerTypeErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: { test: true },
-      })
-    ).toThrowError(...reducerTypeErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers: { test: 'test' },
-      })
-    ).toThrowError(...reducerTypeErrArgs);
-
-    const centerTypeErrArgs = ['Expect the center to be a function'];
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        centers: { test: null },
-      })
-    ).toThrowError(...centerTypeErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        centers: { test: 1 },
-      })
-    ).toThrowError(...centerTypeErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        centers: { test: true },
-      })
-    ).toThrowError(...centerTypeErrArgs);
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        centers: { test: 'test' },
-      })
-    ).toThrowError(...centerTypeErrArgs);
-
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        centers() {},
-      })
-    ).not.toThrowError();
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-        reducers() {},
-      })
-    ).not.toThrowError();
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        initialState: 'test',
-      })
-    ).not.toThrowError();
-    expect(() =>
-      createStore({
-        namespace: 'test',
-        state: 'test',
-      })
-    ).not.toThrowError();
-    expect(() =>
-      createStore([
-        {
-          namespace: 'test',
-          state: 'test',
-        },
-        {
-          namespace: 'test2',
-          state: 'test',
-        },
-      ])
-    ).not.toThrowError();
-    expect(() =>
-      createStore([
-        () => ({
-          namespace: 'test2',
-          state: 'test',
-        }),
-      ])
-    ).not.toThrowError();
-    expect(() => createStore(mutations)).not.toThrowError();
-  });
-
-  it('throws if using replaceMutations not correctly', () => {
+  it('throws if using the replaceMutations not correctly', () => {
     const store = createStore(mutations);
     expect(() => store.replaceMutations()).toThrowError(
       'Expect the mutations to be an array or a plain object or a function'
@@ -257,7 +53,7 @@ describe('createStore', () => {
     ).not.toThrowError();
   });
 
-  it('throws if action type is not a string(mutation mode)', () => {
+  it('throws if the action type is not a string(mutation mode)', () => {
     //mutation模式做了限制
     const store = createStore(mutations);
     const throwArgs = ['Expect the action type to be a string'];

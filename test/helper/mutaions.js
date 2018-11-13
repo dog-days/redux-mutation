@@ -72,9 +72,45 @@ export const centersReducersFunctionTypeMutation = {
     },
   }),
 };
+
+export const generatorNamespace = 'generatorNamespace';
+export const generatorMutation = {
+  namespace: generatorNamespace,
+  initialState: 0,
+  reducers: {
+    increment(state) {
+      return state + 1;
+    },
+  },
+  centers: {
+    *increment_async(action, { put, delay }) {
+      yield delay(delayTime);
+      yield put({ type: 'increment' });
+    },
+    test_async() {
+      //error plugin中用到
+    },
+  },
+};
+export const replacedGeneratorMutation = {
+  namespace: generatorNamespace,
+  reducers: {
+    increment(state) {
+      return state + 2;
+    },
+  },
+  centers: {
+    *increment_async(action, { put, delay }) {
+      yield delay(delayTime);
+      yield put({ type: 'increment' });
+    },
+  },
+};
+
 //end---counterMutation
 export default [
   counterMutation,
   functionTypeMutation,
   centersReducersFunctionTypeMutation,
+  generatorMutation,
 ];

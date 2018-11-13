@@ -1,7 +1,7 @@
-import functionsToAnys from '../src/functions-to-anys';
+import functionsToAnys from '../src/functionsToAnys';
 
 describe('functionsToAnys', () => {
-  it('should work correctly with param which is a function', () => {
+  it('run the function', () => {
     const mutation = {
       test: function() {
         return { a: 2 };
@@ -11,9 +11,9 @@ describe('functionsToAnys', () => {
     const result = functionsToAnys(function() {
       return mutation;
     });
-    result.should.deep.equal([mutation]);
+    expect(result).toEqual([mutation]);
   });
-  it('should work correctly with param which is a array', () => {
+  it('run all the functions', () => {
     const mutation = {
       test: function() {
         return { a: 2 };
@@ -25,6 +25,6 @@ describe('functionsToAnys', () => {
         return mutation;
       },
     ]);
-    result.should.deep.equal([mutation]);
+    expect(result).toEqual([mutation]);
   });
 });
