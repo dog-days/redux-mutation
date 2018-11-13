@@ -3,14 +3,11 @@
  * 如果没用到gennerators最好直接使用basic文件
  * src/index.js在src/basic的基础上包含了combineCenters和converMutations
  */
-import {
-  createStore as createReduxStore,
-  applyMiddleware,
-  compose,
-} from 'redux';
+import { createStore as createReduxStore, applyMiddleware } from 'redux';
 import createCenter from 'redux-center';
 
 import isPlainObject from './utils/isPlainObject';
+import compose from './compose';
 
 function trowReducerAndCentersError(reducerAndCenters) {
   if (
