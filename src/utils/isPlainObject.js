@@ -1,4 +1,5 @@
 /**
+ * Please refer to  https://github.com/reduxjs/redux/blob/master/src/utils/isPlainObject.js
  * @param {any} obj The object to inspect.
  * @returns {boolean} True if the argument appears to be a plain object.
  */

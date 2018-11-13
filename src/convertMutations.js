@@ -1,8 +1,9 @@
-import { combineReducers, compose } from 'redux';
+import { combineReducers } from 'redux';
 
 import isPlainObject from './utils/isPlainObject';
 import { SEPARATOR } from './utils/const';
 import { checkActionType } from './utils/util';
+import compose from './compose';
 
 /**
  * 转换多个mutation结构
@@ -55,19 +56,22 @@ import { checkActionType } from './utils/util';
  *    centers: function(action,{ put, call, select, dispatch, getState }){}
  *  }
  */
-class ConvertMutationsObjects {
+class ConvertMutations {
   constructor(mutations, options = {}) {
     //所有唯一且合法的centers actionType，从mutations的centers中整合出来的。
     this.allCentersActionTypes = [];
-    this.checkMutations(mutations);
     this.mutations = mutations;
     this.options = this.getDefaultOptions(options);
-    return this.convertMutationsObjects();
+    this.checkMutations(mutations);
+    this.checkOptions(this.options);
+    return this.convertMutations();
   }
   getDefaultOptions(options) {
     return {
       reducerEnhancer: originalReducer => (...args) => originalReducer(...args),
       centerEnhancer: center => (...args) => center(...args),
+      extraCenters: [],
+      extraReducers: {},
       ...options,
     };
   }
@@ -78,12 +82,12 @@ class ConvertMutationsObjects {
    *    centers: function(action,{ put, call, select, dispatch, getState }){}
    *  }
    */
-  convertMutationsObjects() {
+  convertMutations() {
     let mutations = this.mutations;
     const { reducerEnhancer } = this.options;
     const reducersAndCenters = mutations.reduce(
       (reducersAndCenters, mutation) => {
-        let { reducer, center } = this.convertMutationsObject(mutation);
+        let { reducer, center } = this.convertMutation(mutation);
         reducersAndCenters.reducers[mutation.namespace] = reducer;
         reducersAndCenters.centers.push(center);
         return reducersAndCenters;
@@ -96,11 +100,7 @@ class ConvertMutationsObjects {
       }
     );
     //而外的reducer和centers，用作插件，插件的代码是要放在一起的
-    let {
-      extraReducers = {},
-      extraCenters = [],
-      generatorsToAsync,
-    } = this.options;
+    let { extraReducers, extraCenters, generatorsToAsync } = this.options;
     if (reducersAndCenters.reducers) {
       reducersAndCenters.reducers = {
         ...reducersAndCenters.reducers,
@@ -109,7 +109,7 @@ class ConvertMutationsObjects {
     }
     if (reducersAndCenters.centers) {
       if (generatorsToAsync) {
-        extraCenters = generatorsToAsync(extraCenters);
+        extraCenters = generatorsToAsync(extraCenters) || [];
       }
       reducersAndCenters.centers = extraCenters.concat(
         reducersAndCenters.centers
@@ -140,7 +140,7 @@ class ConvertMutationsObjects {
    *    center: function(action,{ put, call, select, dispatch, getState }){}
    *  }
    */
-  convertMutationsObject(mutation) {
+  convertMutation(mutation) {
     const { centersAliasName = 'effects', ...otherOptions } = this.options;
     const namespace = mutation.namespace;
     const reducersObject = mutation.reducers || {};
@@ -188,7 +188,7 @@ class ConvertMutationsObjects {
    *   test2{}
    * }
    * @param {string} namespace 命名空间，相当于reducer函数名
-   * @param {any} initailState reducer初始化state
+   * @param {object} mutation 请看上面 class ConvertMutations mutations参数注释
    * @param {any} state redux state
    * @param {object} action redux action
    * @return undefined
@@ -216,6 +216,7 @@ class ConvertMutationsObjects {
    *   test2{}
    * }
    * @param {string} options.namespace 命名空间，相当于reducer函数名
+   * @param {object} mutation 请看上面 class ConvertMutations mutations参数注释
    * @param {function} options.generatorsToAsync 请参考redux-center的generatorsToAsync
    * @param {function} options.centerEnhancer 请参考上面centerEnhancer注释
    * @param {object} action redux action
@@ -337,12 +338,18 @@ class ConvertMutationsObjects {
    * 验证namespace是否重复
    * 验证所有reducers和centers的属性名是否重复，重复则抛出异常
    * 验证reducer函数名和center函数名是否合法
-   * @param {array} mutations
+   * @param {array} mutations 请看上面 class ConvertMutations mutations参数注释
    */
   checkMutations(mutations) {
+    if (!Array.isArray(mutations)) {
+      throw new TypeError('Expect the mutations to be an array.');
+    }
     //存放所有namepsace
     const allNamespace = {};
     mutations.forEach(mutation => {
+      if (!isPlainObject(mutation)) {
+        throw new TypeError('Expect the mutation to be a plain object.');
+      }
       //configCreateStore中做了mutaion类型判断，所有不用在做判断。
       if (typeof mutation.namespace !== 'string') {
         //优先namespace判断
@@ -403,8 +410,36 @@ class ConvertMutationsObjects {
       checkReducersOrCenters('centers');
     });
   }
+  checkOptions(options) {
+    const {
+      extraCenters = [],
+      extraReducers = {},
+      centerEnhancer = () => {},
+      reducerEnhancer = () => {},
+      generatorsToAsync = () => {},
+      centersAliasName = '',
+    } = options;
+    if (!isPlainObject(extraReducers)) {
+      throw new TypeError('Expect the extraReducers to be a plain object.');
+    }
+    if (!Array.isArray(extraCenters)) {
+      throw new TypeError('Expect the extraCenters to be an array.');
+    }
+    if (typeof centerEnhancer !== 'function') {
+      throw new TypeError('Expect the centerEnhancer to be a function.');
+    }
+    if (typeof reducerEnhancer !== 'function') {
+      throw new TypeError('Expect the reducerEnhancer to be a function.');
+    }
+    if (typeof generatorsToAsync !== 'function') {
+      throw new TypeError('Expect the generatorsToAsync to be a function.');
+    }
+    if (typeof centersAliasName !== 'string') {
+      throw new TypeError('Expect the centersAliasName to be a string.');
+    }
+  }
 }
 
 export default function(...args) {
-  return new ConvertMutationsObjects(...args);
+  return new ConvertMutations(...args);
 }
