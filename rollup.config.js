@@ -47,38 +47,11 @@ function createCommonConfigByInput(input, fileName, umdName) {
       ],
     },
 
-    // ES for Browsers
-    {
-      input,
-      output: { file: `es/${fileName}.mjs`, format: 'es', indent: false },
-      external: ['redux'],
-      globals: {
-        redux: 'Redux',
-      },
-      plugins: [
-        commonjsPlugin,
-        nodeResolve({
-          jsnext: true,
-        }),
-        replace({
-          'process.env.NODE_ENV': JSON.stringify('production'),
-        }),
-        terser({
-          compress: {
-            pure_getters: true,
-            unsafe: true,
-            unsafe_comps: true,
-            warnings: false,
-          },
-        }),
-      ],
-    },
-
     // UMD Development
     {
       input,
       output: {
-        file: `dist/${fileName}.development.js`,
+        file: `dist/${fileName}.js`,
         format: 'umd',
         name: umdName,
         indent: false,
@@ -106,7 +79,7 @@ function createCommonConfigByInput(input, fileName, umdName) {
     {
       input,
       output: {
-        file: `dist/${fileName}.production.js`,
+        file: `dist/${fileName}.min.js`,
         format: 'umd',
         name: umdName,
         indent: false,
