@@ -8,12 +8,10 @@ describe('exports', () => {
       }
       return true;
     });
-    expect(apis.length).toBe(9);
+    expect(apis.length).toBe(7);
     expect(apis).toContain('combineReducers');
-    expect(apis).toContain('bindActionCreators');
     expect(apis).toContain('applyMiddleware');
     expect(apis).toContain('compose');
-    expect(apis).toContain('__DO_NOT_USE__ActionTypes');
     expect(apis).toContain('createStore');
     expect(apis).toContain('configCreateStore');
     expect(apis).toContain('applyPlugin');

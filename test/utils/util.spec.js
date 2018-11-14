@@ -18,7 +18,7 @@ describe('util', () => {
     expect(isObjectEmpty({})).toBe(true);
     expect(isObjectEmpty({ a: 2 })).toBe(false);
     expect(isObjectEmpty({ a: 2, b: 3 })).toBe(false);
-    const errString = 'Expect object to be a plain object';
+    const errString = 'Expect the object to be a plain object';
     expect(() => isObjectEmpty()).toThrowError(errString);
     expect(() => isObjectEmpty(1)).toThrowError(errString);
     expect(() => isObjectEmpty(null)).toThrowError(errString);
