@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 
 import isPlainObject from './utils/isPlainObject';
+import warning from './utils/warning';
 import { SEPARATOR } from './utils/const';
 import { checkActionType } from './utils/util';
 import compose from './compose';
@@ -234,7 +235,10 @@ class ConvertMutations {
       put,
     };
     const enhancerPut = action => {
-      if (!!~this.allCentersActionTypes.indexOf(action.type)) {
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        !!~this.allCentersActionTypes.indexOf(action.type)
+      ) {
         throw new Error(
           'You can only put to reducer in centerEhancer, otherwise it will cause an infinite loop.'
         );
@@ -301,8 +305,11 @@ class ConvertMutations {
       checkActionType(action);
       const actionType = action.type;
       let lastNamespace = replaceNamespace || namespace;
-      if (actionType.indexOf(`${namespace}${SEPARATOR}`) === 0) {
-        console.warn(
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        actionType.indexOf(`${namespace}${SEPARATOR}`) === 0
+      ) {
+        warning(
           `
             When using "put", you can use function name without namespace.
             You should use in this way:
@@ -325,7 +332,10 @@ class ConvertMutations {
         newType = `${lastNamespace}${SEPARATOR}${actionType}`;
       }
       return new Promise(resolve => {
-        if (!!~action.type.indexOf(this.currentCenterName)) {
+        if (
+          process.env.NODE_ENV !== 'production' &&
+          !!~action.type.indexOf(this.currentCenterName)
+        ) {
           throw new Error('Can not put to center itself.');
         }
         resolve(originalPut({ ...action, type: newType }));
@@ -341,101 +351,108 @@ class ConvertMutations {
    * @param {array} mutations 请看上面 class ConvertMutations mutations参数注释
    */
   checkMutations(mutations) {
-    if (!Array.isArray(mutations)) {
-      throw new TypeError('Expect the mutations to be an array.');
+    if (process.env.NODE_ENV !== 'production') {
+      if (!Array.isArray(mutations)) {
+        throw new TypeError('Expect the mutations to be an array.');
+      }
+      //存放所有namepsace
+      const allNamespace = {};
+      mutations.forEach(mutation => {
+        if (!isPlainObject(mutation)) {
+          throw new TypeError('Expect the mutation to be a plain object.');
+        }
+        //configCreateStore中做了mutaion类型判断，所有不用在做判断。
+        if (typeof mutation.namespace !== 'string') {
+          //优先namespace判断
+          throw new TypeError('Expect the namespace to be a string.');
+        }
+        if (
+          mutation.initialState === undefined &&
+          mutation.state === undefined
+        ) {
+          throw new Error('Expect the initialState or state to be defined.');
+        }
+        if (allNamespace[mutation.namespace]) {
+          throw new Error(`Expect the namespace to be unique.`);
+        } else {
+          allNamespace[mutation.namespace] = true;
+        }
+        //存放所有当前mutation的reducers和centers的property
+        const reducersCentersKeysFlag = {};
+        /**
+         * 检测mutation中的centers或者reducers是否合法
+         * @param {string} type centers or reduers
+         */
+        const checkReducersOrCenters = type => {
+          let targetObject = mutation[type];
+          if (typeof targetObject === 'function') {
+            targetObject = targetObject({}, {}) || {};
+          }
+          if (targetObject !== undefined && !isPlainObject(targetObject)) {
+            throw new TypeError(`Expect the ${type} to be a plain object.`);
+          }
+          for (let key in targetObject) {
+            if (typeof targetObject[key] !== 'function') {
+              throw new TypeError(
+                `Expect the ${
+                  type === 'centers' ? 'center' : 'reducer'
+                } to be a function.`
+              );
+            }
+            if (!!~key.indexOf(SEPARATOR)) {
+              throw new Error(
+                `mutation.${type}["${key}"] can not contain "${SEPARATOR}"`
+              );
+            }
+            if (reducersCentersKeysFlag[key]) {
+              throw new Error(
+                `The current mutation reducers.${key} and centers.${key} should be unique.\r\nThe namespace is "${
+                  mutation.namespace
+                }".`
+              );
+            } else {
+              reducersCentersKeysFlag[key] = true;
+            }
+            if (type === 'centers') {
+              this.allCentersActionTypes.push(
+                this.getActionType(mutation.namespace, key)
+              );
+            }
+          }
+        };
+        checkReducersOrCenters('reducers');
+        checkReducersOrCenters('centers');
+      });
     }
-    //存放所有namepsace
-    const allNamespace = {};
-    mutations.forEach(mutation => {
-      if (!isPlainObject(mutation)) {
-        throw new TypeError('Expect the mutation to be a plain object.');
-      }
-      //configCreateStore中做了mutaion类型判断，所有不用在做判断。
-      if (typeof mutation.namespace !== 'string') {
-        //优先namespace判断
-        throw new TypeError('Expect the namespace to be a string.');
-      }
-      if (mutation.initialState === undefined && mutation.state === undefined) {
-        throw new Error('Expect the initialState or state to be defined.');
-      }
-      if (allNamespace[mutation.namespace]) {
-        throw new Error(`Expect the namespace to be unique.`);
-      } else {
-        allNamespace[mutation.namespace] = true;
-      }
-      //存放所有当前mutation的reducers和centers的property
-      const reducersCentersKeysFlag = {};
-      /**
-       * 检测mutation中的centers或者reducers是否合法
-       * @param {string} type centers or reduers
-       */
-      const checkReducersOrCenters = type => {
-        let targetObject = mutation[type];
-        if (typeof targetObject === 'function') {
-          targetObject = targetObject({}, {}) || {};
-        }
-        if (targetObject !== undefined && !isPlainObject(targetObject)) {
-          throw new TypeError(`Expect the ${type} to be a plain object.`);
-        }
-        for (let key in targetObject) {
-          if (typeof targetObject[key] !== 'function') {
-            throw new TypeError(
-              `Expect the ${
-                type === 'centers' ? 'center' : 'reducer'
-              } to be a function.`
-            );
-          }
-          if (!!~key.indexOf(SEPARATOR)) {
-            throw new Error(
-              `mutation.${type}["${key}"] can not contain "${SEPARATOR}"`
-            );
-          }
-          if (reducersCentersKeysFlag[key]) {
-            throw new Error(
-              `The current mutation reducers.${key} and centers.${key} should be unique.\r\nThe namespace is "${
-                mutation.namespace
-              }".`
-            );
-          } else {
-            reducersCentersKeysFlag[key] = true;
-          }
-          if (type === 'centers') {
-            this.allCentersActionTypes.push(
-              this.getActionType(mutation.namespace, key)
-            );
-          }
-        }
-      };
-      checkReducersOrCenters('reducers');
-      checkReducersOrCenters('centers');
-    });
   }
   checkOptions(options) {
-    const {
-      extraCenters = [],
-      extraReducers = {},
-      centerEnhancer = () => {},
-      reducerEnhancer = () => {},
-      generatorsToAsync = () => {},
-      centersAliasName = '',
-    } = options;
-    if (!isPlainObject(extraReducers)) {
-      throw new TypeError('Expect the extraReducers to be a plain object.');
-    }
-    if (!Array.isArray(extraCenters)) {
-      throw new TypeError('Expect the extraCenters to be an array.');
-    }
-    if (typeof centerEnhancer !== 'function') {
-      throw new TypeError('Expect the centerEnhancer to be a function.');
-    }
-    if (typeof reducerEnhancer !== 'function') {
-      throw new TypeError('Expect the reducerEnhancer to be a function.');
-    }
-    if (typeof generatorsToAsync !== 'function') {
-      throw new TypeError('Expect the generatorsToAsync to be a function.');
-    }
-    if (typeof centersAliasName !== 'string') {
-      throw new TypeError('Expect the centersAliasName to be a string.');
+    if (process.env.NODE_ENV !== 'production') {
+      const {
+        extraCenters = [],
+        extraReducers = {},
+        centerEnhancer = () => {},
+        reducerEnhancer = () => {},
+        generatorsToAsync = () => {},
+        centersAliasName = '',
+      } = options;
+      if (!isPlainObject(extraReducers)) {
+        throw new TypeError('Expect the extraReducers to be a plain object.');
+      }
+      if (!Array.isArray(extraCenters)) {
+        throw new TypeError('Expect the extraCenters to be an array.');
+      }
+      if (typeof centerEnhancer !== 'function') {
+        throw new TypeError('Expect the centerEnhancer to be a function.');
+      }
+      if (typeof reducerEnhancer !== 'function') {
+        throw new TypeError('Expect the reducerEnhancer to be a function.');
+      }
+      if (typeof generatorsToAsync !== 'function') {
+        throw new TypeError('Expect the generatorsToAsync to be a function.');
+      }
+      if (typeof centersAliasName !== 'string') {
+        throw new TypeError('Expect the centersAliasName to be a string.');
+      }
     }
   }
 }

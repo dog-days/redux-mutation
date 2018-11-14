@@ -6,7 +6,10 @@ import isPlainObject from './isPlainObject';
  * @return undefined
  */
 export function checkActionType(action) {
-  if (typeof action.type !== 'string') {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    typeof action.type !== 'string'
+  ) {
     throw new TypeError('Expect the action type to be a string.');
   }
 }
@@ -16,8 +19,8 @@ export function checkActionType(action) {
  * @param {obect} object
  */
 export function isObjectEmpty(object) {
-  if (!isPlainObject(object)) {
-    throw new TypeError('Expect object to be a plain object');
+  if (process.env.NODE_ENV !== 'production' && !isPlainObject(object)) {
+    throw new TypeError('Expect the object to be a plain object');
   }
   for (let key in object) {
     return false;

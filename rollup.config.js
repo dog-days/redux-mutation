@@ -78,7 +78,7 @@ function createCommonConfigByInput(input, fileName, umdName) {
     {
       input,
       output: {
-        file: `dist/${fileName}.js`,
+        file: `dist/${fileName}.development.js`,
         format: 'umd',
         name: umdName,
         indent: false,
@@ -106,7 +106,7 @@ function createCommonConfigByInput(input, fileName, umdName) {
     {
       input,
       output: {
-        file: `dist/${fileName}.min.js`,
+        file: `dist/${fileName}.production.js`,
         format: 'umd',
         name: umdName,
         indent: false,

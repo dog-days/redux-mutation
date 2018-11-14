@@ -9,8 +9,9 @@ import createCenter from 'redux-center';
 import isPlainObject from './utils/isPlainObject';
 import compose from './compose';
 
-function trowReducerAndCentersError(reducerAndCenters) {
+function checkReducerAndCenters(reducerAndCenters) {
   if (
+    process.env.NODE_ENV !== 'production' &&
     typeof reducerAndCenters !== 'function' &&
     !isPlainObject(reducerAndCenters)
   ) {
@@ -38,7 +39,7 @@ export default function configBasicCreateStore(options) {
    * @return {object} 返回了一个经过适配后的store，属性完全跟redux的store一致
    */
   return (reducerAndCenters, preloadedState, enhancer) => {
-    trowReducerAndCentersError(reducerAndCenters);
+    checkReducerAndCenters(reducerAndCenters);
     if (
       typeof preloadedState === 'function' &&
       typeof enhancer === 'undefined'
@@ -85,7 +86,7 @@ export default function configBasicCreateStore(options) {
 function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
   //热替换或动态加载中使用
   return reducerAndCenters => {
-    trowReducerAndCentersError(reducerAndCenters);
+    checkReducerAndCenters(reducerAndCenters);
     let reducer;
     if (!replaceCenters) {
       reducer = reducerAndCenters;

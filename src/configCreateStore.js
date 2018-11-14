@@ -3,9 +3,11 @@ import convertMutations from './convertMutations';
 import functionsToAnys from './functionsToAnys';
 import isPlainObject from './utils/isPlainObject';
 import { isObjectEmpty } from './utils/util';
+import warning from './utils/warning';
 
 function checkMutations(mutations) {
   if (
+    process.env.NODE_ENV !== 'production' &&
     !Array.isArray(mutations) &&
     !isPlainObject(mutations) &&
     typeof mutations !== 'function'
@@ -55,9 +57,7 @@ export default function configCreateStore(plugin = {}, options = {}) {
       onlyOriginalReducer = true;
       reducerAndCenters.reducer = mutations;
       if (!isObjectEmpty(options)) {
-        console.warn(
-          'options param will not work when mutations is reducer format'
-        );
+        warning('options param will not work when mutations is reducer format');
       }
     } else {
       mutations = functionsToAnys(mutations);
@@ -107,7 +107,7 @@ function createReplaceMutations(
     newMutations = functionsToAnys(newMutations);
     // console.log(newMutations);
     newMutations.forEach(mutation => {
-      if (!mutation.namespace) {
+      if (process.env.NODE_ENV !== 'production' && !mutation.namespace) {
         throw new TypeError('Expect the mutation namespace to be defined.');
       }
       mutationByNamespace[mutation.namespace] = mutation;
