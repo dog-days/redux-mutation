@@ -59,8 +59,6 @@ import compose from './compose';
  */
 class ConvertMutations {
   constructor(mutations, options = {}) {
-    //所有唯一且合法的centers actionType，从mutations的centers中整合出来的。
-    this.allCentersActionTypes = [];
     this.mutations = mutations;
     this.options = this.getDefaultOptions(options);
     this.checkMutations(mutations);
@@ -229,22 +227,12 @@ class ConvertMutations {
     { namespace, mutation, generatorsToAsync, centerEnhancer },
     { action, centerUtils }
   ) {
-    const put = this.createNewPut(centerUtils.put, namespace);
+    let put = this.createNewCenterPut(centerUtils.put, namespace);
     const newCenterUtils = {
       ...centerUtils,
       put,
     };
-    const enhancerPut = action => {
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        !!~this.allCentersActionTypes.indexOf(action.type)
-      ) {
-        throw new Error(
-          'You can only put to reducer in centerEhancer, otherwise it will cause an infinite loop.'
-        );
-      }
-      return centerUtils.put(action);
-    };
+    let enhancerPut = this.createCenterEnhancerPut(centerUtils);
     if (typeof centersObject === 'function') {
       centersObject = centersObject(action, newCenterUtils) || {};
     }
@@ -291,7 +279,7 @@ class ConvertMutations {
    * @param {function} originalPut 原来的的center put参数
    * @param {string} namespace mutation命名空间
    */
-  createNewPut(originalPut, namespace) {
+  createNewCenterPut(originalPut, namespace) {
     /**
      * promise版的dispatch，在当前的center中使用的时候，默认会加上nameapce + SEPARATOR
      * action.type = `${namespace}${SEPARATOR}${action.type}`
@@ -305,10 +293,7 @@ class ConvertMutations {
       checkActionType(action);
       const actionType = action.type;
       let lastNamespace = replaceNamespace || namespace;
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        actionType.indexOf(`${namespace}${SEPARATOR}`) === 0
-      ) {
+      if (actionType.indexOf(`${lastNamespace}${SEPARATOR}`) === 0) {
         warning(
           `
             When using "put", you can use function name without namespace.
@@ -341,6 +326,41 @@ class ConvertMutations {
         resolve(originalPut({ ...action, type: newType }));
       });
     };
+  }
+  /**
+   * @param { promise } put centerUtils put 为经过改造的
+   * @param { object } newCenterUtils 改造后的centerUtils
+   * @returns { promise } 经过改造的 put
+   */
+  createCenterEnhancerPut(centerUtils) {
+    if (process.env.NODE_ENV !== 'production') {
+      return action => {
+        const originalPut = centerUtils.put;
+        const newPut = this.createNewCenterPut(originalPut);
+        const newCenterUtils = {
+          ...centerUtils,
+          put: newPut,
+        };
+        const allCentersActionTypes = [];
+        this.mutations.forEach(mutation => {
+          let centersObject = mutation.centers;
+          if (typeof centers === 'function') {
+            centersObject = centersObject(action, newCenterUtils) || {};
+          }
+          for (let key in centersObject) {
+            allCentersActionTypes.push(
+              this.getActionType(mutation.namespace, key)
+            );
+          }
+        });
+        if (!!~allCentersActionTypes.indexOf(action.type)) {
+          throw new Error(
+            'You can only put to reducer in centerEhancer, otherwise it will cause an infinite loop.'
+          );
+        }
+        return originalPut(action);
+      };
+    }
   }
 
   /**
@@ -384,41 +404,44 @@ class ConvertMutations {
          * @param {string} type centers or reduers
          */
         const checkReducersOrCenters = type => {
-          let targetObject = mutation[type];
-          if (typeof targetObject === 'function') {
-            targetObject = targetObject({}, {}) || {};
-          }
-          if (targetObject !== undefined && !isPlainObject(targetObject)) {
-            throw new TypeError(`Expect the ${type} to be a plain object.`);
-          }
-          for (let key in targetObject) {
-            if (typeof targetObject[key] !== 'function') {
-              throw new TypeError(
-                `Expect the ${
-                  type === 'centers' ? 'center' : 'reducer'
-                } to be a function.`
-              );
+          let centersOrReducers = mutation[type];
+          function trowMutationErrors(centersOrReducers) {
+            if (
+              centersOrReducers !== undefined &&
+              !isPlainObject(centersOrReducers)
+            ) {
+              throw new TypeError(`Expect the ${type} to be a plain object.`);
             }
-            if (!!~key.indexOf(SEPARATOR)) {
-              throw new Error(
-                `mutation.${type}["${key}"] can not contain "${SEPARATOR}"`
-              );
-            }
-            if (reducersCentersKeysFlag[key]) {
-              throw new Error(
-                `The current mutation reducers.${key} and centers.${key} should be unique.\r\nThe namespace is "${
-                  mutation.namespace
-                }".`
-              );
-            } else {
-              reducersCentersKeysFlag[key] = true;
-            }
-            if (type === 'centers') {
-              this.allCentersActionTypes.push(
-                this.getActionType(mutation.namespace, key)
-              );
+            for (let key in centersOrReducers) {
+              if (typeof centersOrReducers[key] !== 'function') {
+                throw new TypeError(
+                  `Expect the ${
+                    type === 'centers' ? 'center' : 'reducer'
+                  } to be a function.`
+                );
+              }
+              if (!!~key.indexOf(SEPARATOR)) {
+                throw new Error(
+                  `mutation.${type}["${key}"] can not contain "${SEPARATOR}"`
+                );
+              }
+              if (reducersCentersKeysFlag[key]) {
+                throw new Error(
+                  `The current mutation reducers.${key} and centers.${key} should be unique.\r\nThe namespace is "${
+                    mutation.namespace
+                  }".`
+                );
+              } else {
+                reducersCentersKeysFlag[key] = true;
+              }
             }
           }
+          //reducers和centers 函数模式如何在运行的时候报错，就不在这里校验mutation，在 dispatch 后校验
+          if (typeof centersOrReducers === 'function') {
+            //添加action.payload 简单防止报错
+            centersOrReducers = centersOrReducers({}, {}) || {};
+          }
+          trowMutationErrors(centersOrReducers);
         };
         checkReducersOrCenters('reducers');
         checkReducersOrCenters('centers');
