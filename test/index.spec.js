@@ -1,7 +1,7 @@
 import * as API from '../src';
 
 describe('exports', () => {
-  test('should be correct.', () => {
+  it('should be correct.', () => {
     const apis = Object.keys(API).filter(api => {
       if (api === '__esModule') {
         return false;
