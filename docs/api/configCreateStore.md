@@ -1,7 +1,7 @@
 # configCreateStore
 
 ```
-configCreateStore([plugin],[options])
+configCreateStore([plugin],[options]) => createStore
 ```
 
 可配置`createStore`，`configCreateStore`返回值为[createStore](/docs/api/createStore)。

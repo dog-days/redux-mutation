@@ -8,8 +8,6 @@
 git clone https://github.com/dog-days/redux-mutation
 cd redux-mutation
 npm install
-npm test
-npm run build #生成例子可用代码，也可使用npm run build-watch
 ```
 
 ## 运行

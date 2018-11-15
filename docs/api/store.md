@@ -16,7 +16,7 @@ replaceMutations(mutations);
 
 跟`redux`的`replaceReducer`一样，`replaceMutations`可以用来动态加载`mutations`，和热替换。
 
-### 参数
+#### 参数
 
 1. `mutations` *(array | object)*:
 

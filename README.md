@@ -1,6 +1,6 @@
 # Redux-Mutation
 
-[![build status](https://travis-ci.org/dog-days/redux-mutation.svg?branch=master)](https://travis-ci.org/dog-days/redux-mutation) [![codecov](https://codecov.io/gh/dog-days/redux-mutation/branch/master/graph/badge.svg)](https://codecov.io/gh/dog-days/redux-mutation) [![npm package](https://badge.fury.io/js/redux-mutation.svg)](https://www.npmjs.org/package/redux-mutation) [![NPM downloads](http://img.shields.io/npm/dm/redux-mutation.svg)](https://npmjs.org/package/redux-mutation) ![](https://img.shields.io/badge/minzipped%20size-~3.8kb-brightgreen.svg)
+[![build status](https://travis-ci.org/dog-days/redux-mutation.svg?branch=master)](https://travis-ci.org/dog-days/redux-mutation) [![codecov](https://codecov.io/gh/dog-days/redux-mutation/branch/master/graph/badge.svg)](https://codecov.io/gh/dog-days/redux-mutation) [![npm package](https://badge.fury.io/js/redux-mutation.svg)](https://www.npmjs.org/package/redux-mutation) [![NPM downloads](http://img.shields.io/npm/dm/redux-mutation.svg)](https://npmjs.org/package/redux-mutation) ![](https://img.shields.io/badge/minzipped%20size-4.5kb-brightgreen.svg)
 
 > 你完全可以使用`redux-mutation`替换`redux`。
 
@@ -8,7 +8,7 @@
 
 `redux-mutation`是基于[redux-center](https://github.com/dog-days/redux-center)，有一个`center`概念，这个可以移步`redux-center`。
 
-`redux-mutation` umd 包gip后只有3.8KB（包括redux-center，但不包括redux），所以不用担心会太大。
+`redux-mutation` umd 包gip后只有4.5KB（包括redux-center和redux），所以不用担心会太大。
 
 ## 由来
 
@@ -18,7 +18,7 @@
 
 ## 浏览器兼容性
 
-兼容 IE9、edge、谷歌、火狐、safar 等浏览器，其中 IE 需要而外支持`promise`。
+兼容 IE11、edge、谷歌、火狐、safar 等浏览器，其中 IE 需要而外支持`promise`。
 
 ### Npm Promise
 
@@ -63,9 +63,7 @@ import { createStore } from 'redux-mutation';
 
 const mutations = [
   {
-    //state: 0,也可以
     initialState: 0,
-    //namespace相当于reducer名
     namespace: 'counter',
     reducers: {
       increment(state, action) {
@@ -75,38 +73,8 @@ const mutations = [
         return state - 1;
       },
     },
-  },
-  {
-    //namespace相当于reducer名
-    namespace: 'tester',
-    //state: null,也可以
-    initialState: null,
-    centers: {
-      async test(action, { put, call, select }) {
-        console.log('center test');
-        await put({ type: 'test2' });
-        await put({ type: 'increment' }, 'counter');
-        console.log(
-          'counter after increment',
-          await select(state => state.counter)
-        );
-        await put({ type: 'counter/decrement' });
-        console.log(
-          'counter after decrement',
-          await select(state => state.counter)
-        );
-        const data = await call(fetch, '/demo.json').then(resonse => {
-          return resonse.json();
-        });
-        console.log('fetchedData', data);
-      },
-      async test2(action, { put, call, select }) {
-        console.log('center test2');
-        await put({ type: 'test3' });
-      },
-      test3(action, { put, call, select }) {
-        console.log('center test3');
-      },
+    async increment_async(action, { put, call, select }) {
+      await put({ type: 'increment' }, 'counter');
     },
   },
 ];
@@ -114,7 +82,7 @@ const store = createStore(mutations);
 store.subscribe(function() {
   console.log('rendered', 'You can render dom here.');
 });
-store.dispatch({ type: 'tester/test' });
+store.dispatch({ type: 'tester/increment_async' });
 ```
 
 ## 文档
@@ -123,14 +91,12 @@ store.dispatch({ type: 'tester/test' });
 
 ## 在浏览器中使用 umd 方式
 
-有两种方式，第一种是使用 cdn，第二种就是直接在打包后的的`./dist`文件中获取。
-
 ### cdn 方式
 
 - https://unpkg.com/redux-mutation/dist/redux-mutation.js
 - https://unpkg.com/redux-mutation/dist/redux-mutation.min.js
 
-`const createStore = window.ReduxMutation`相当于：
+`const { createStore } = window.ReduxMutation`相当于es6 import:
 
 ```js
 import { createStore } from 'redux-mutation';
@@ -142,8 +108,8 @@ import { createStore } from 'redux-mutation';
 git clone https://github.com/dog-days/redux-mutation
 cd redux-mutation
 npm install
-npm test
-npm run build
+#npm test（安装完成后，postinstall 会触发）
+#npm run build （生成例子可用代码，安装完成后，postinstall 会触发）
 ```
 
 然后在根目录下的`./dist`文件夹获取相关的 js 文件。

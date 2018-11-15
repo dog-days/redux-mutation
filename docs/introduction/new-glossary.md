@@ -15,13 +15,13 @@ type Center<A, C, M, T> = (
 
 `redux-center`里的`center`,`center`可以进行异步操作、延迟`dispatch`。
 
-## Mutation object
+## Mutation
 
 ```js
-type mutation = object | function
+type mutation = object
 ```
 
-`mutation`是一种结构，整合了`reducer`和`center`，具体定义可以看[新概念](../introduction/new-concepts.md)中的`mutation`定义。
+`mutation`是一种结构，整合了`reducer`和`center`，具体定义可以看[mutation API](../api/mutation.md)中的 `mutation` 定义。
 
 ## Reducer enhancer
 
@@ -39,4 +39,4 @@ type ReducerEnhancer<R = Reducer> = (
 type ReducerEnhancer<C = Center> = (center: Center) => center;
 ```
 
-`centerEnhancer`需要配合[applyPlugin](../api/applyPlugin.md)使用，插件选项之一。可以在`center`运行之前或者之后进行`disaptch`等操作，同时也可以根据`action type`过滤`center`操作。
+`centerEnhancer`需要配合[applyPlugin](../api/applyPlugin.md)使用，插件选项之一。可以在`center`运行之前或者之后进行`disaptch`等操作，同时也可以根据`action type`过滤`center`。

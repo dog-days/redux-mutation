@@ -1,14 +1,14 @@
 # createStore
 
 ```
-createStore(mutations, [preloadedState], [enhancer])
+createStore(mutations, [preloadedState], [enhancer]) => store
 ```
 
 > 创建一个 Redux [store](https://www.redux.org.cn/docs/api/Store.html) 来以存放应用中所有的 state。
 >
 > 应用中应有且仅有一个 store。
 
-除了参数`mutations`不一样，其他的参数跟`redux`的[createStore](https://redux.js.org/api/createstore)参数是一样的。
+除了参数 `mutations` 不一样，其他的参数跟 `redux` 的 [createStore](https://redux.js.org/api/createstore) 参数是一样的。
 
 ### 引入
 
@@ -16,7 +16,7 @@ createStore(mutations, [preloadedState], [enhancer])
 import { creactStore } form 'redux-mutation';
 ```
 
-或者使用[configMutationStore](/docs/api/configCreateStore)获取`createStore`。
+或者使用 [configMutationStore](/docs/api/configCreateStore) 获取 `createStore` 。
 
 ```js
 import { configCreateStore } form 'redux-mutation';
@@ -35,9 +35,11 @@ const createStore = configCreateStore(...args);
 
      会转为`[object]`数组，然后跟下面`array`情况一样了。
 
+     详细 `mutation` API 看[这里](../api/mutation.md)。
+
    - `array`
 
-     详细看[这里](../introduction/new-concepts.md#mutationobject)。
+     情况上面 `object` 类型的。
 
 2. [`preloadedState`] *(any)*：**跟`redux`的一样，没变化。**
 
@@ -62,7 +64,7 @@ const createStore = configCreateStore(...args);
 
 ### 返回值
 
-返回一个 store 对象，详细请看[这里](/docs/api/store.md)。
+返回一个 store 对象，详细请看[这里](store.md)。
 
 ### 例子
 
