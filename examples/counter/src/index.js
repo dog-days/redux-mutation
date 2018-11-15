@@ -15,7 +15,7 @@ const dispatchAction = type => store.dispatch({ type });
 function render() {
   ReactDOM.render(
     <Counter
-      value={store.getState().counter}
+      value={store.getState()[counterNamspace]}
       onIncrement={() => dispatchAction(`${counterNamspace}/increment`)}
       onDecrement={() => dispatchAction(`${counterNamspace}/decrement`)}
       onIncrementIfOdd={() =>
