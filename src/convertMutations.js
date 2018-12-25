@@ -328,39 +328,37 @@ class ConvertMutations {
     };
   }
   /**
-   * @param { promise } put centerUtils put 为经过改造的
+   * @param { promise } put centerUtils put 未经过改造的
    * @param { object } newCenterUtils 改造后的centerUtils
    * @returns { promise } 经过改造的 put
    */
   createCenterEnhancerPut(centerUtils) {
-    if (process.env.NODE_ENV !== 'production') {
-      return action => {
-        const originalPut = centerUtils.put;
-        const newPut = this.createNewCenterPut(originalPut);
-        const newCenterUtils = {
-          ...centerUtils,
-          put: newPut,
-        };
-        const allCentersActionTypes = [];
-        this.mutations.forEach(mutation => {
-          let centersObject = mutation.centers;
-          if (typeof centers === 'function') {
-            centersObject = centersObject(action, newCenterUtils) || {};
-          }
-          for (let key in centersObject) {
-            allCentersActionTypes.push(
-              this.getActionType(mutation.namespace, key)
-            );
-          }
-        });
-        if (!!~allCentersActionTypes.indexOf(action.type)) {
-          throw new Error(
-            'You can only put to reducer in centerEhancer, otherwise it will cause an infinite loop.'
+    return action => {
+      const originalPut = centerUtils.put;
+      const newPut = this.createNewCenterPut(originalPut);
+      const newCenterUtils = {
+        ...centerUtils,
+        put: newPut,
+      };
+      const allCentersActionTypes = [];
+      this.mutations.forEach(mutation => {
+        let centersObject = mutation.centers;
+        if (typeof centers === 'function') {
+          centersObject = centersObject(action, newCenterUtils) || {};
+        }
+        for (let key in centersObject) {
+          allCentersActionTypes.push(
+            this.getActionType(mutation.namespace, key)
           );
         }
-        return originalPut(action);
-      };
-    }
+      });
+      if (!!~allCentersActionTypes.indexOf(action.type)) {
+        throw new Error(
+          'You can only put to reducer in centerEhancer, otherwise it will cause an infinite loop.'
+        );
+      }
+      return originalPut(action);
+    };
   }
 
   /**
