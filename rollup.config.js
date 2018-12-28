@@ -1,4 +1,3 @@
-//nodeResolve是必须的，要不watch模式会报错。
 import nodeResolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
@@ -7,8 +6,9 @@ import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
 
+//babel需要再 commonjs plugin 之前配置
 const commonjsPlugin = commonjs({
-  include: 'node_modules/**',
+  include: /node_modules/,
 });
 
 function createCommonConfigByInput(input, fileName, umdName) {
@@ -22,11 +22,12 @@ function createCommonConfigByInput(input, fileName, umdName) {
         ...Object.keys(pkg.peerDependencies || {}),
       ],
       plugins: [
-        commonjsPlugin,
+        //babel需要再 commonjs plugin 之前配置
+        babel({ exclude: 'node_modules/**' }),
         nodeResolve({
           jsnext: true,
         }),
-        babel(),
+        commonjsPlugin,
       ],
     },
 
@@ -39,11 +40,12 @@ function createCommonConfigByInput(input, fileName, umdName) {
         ...Object.keys(pkg.peerDependencies || {}),
       ],
       plugins: [
-        commonjsPlugin,
+        //babel需要再 commonjs plugin 之前配置
+        babel({ exclude: 'node_modules/**' }),
         nodeResolve({
           jsnext: true,
         }),
-        babel(),
+        commonjsPlugin,
       ],
     },
 
@@ -57,18 +59,14 @@ function createCommonConfigByInput(input, fileName, umdName) {
         indent: false,
         sourcemap: true,
       },
-      // external: ['redux'],
-      // globals: {
-      //   redux: 'Redux',
-      // },
       plugins: [
+        babel({
+          exclude: 'node_modules/**',
+        }),
         nodeResolve({
           jsnext: true,
         }),
         commonjsPlugin,
-        babel({
-          exclude: 'node_modules/**',
-        }),
         replace({
           'process.env.NODE_ENV': JSON.stringify('development'),
         }),
@@ -85,18 +83,14 @@ function createCommonConfigByInput(input, fileName, umdName) {
         indent: false,
         sourcemap: true,
       },
-      // external: ['redux'],
-      // globals: {
-      //   redux: 'Redux',
-      // },
       plugins: [
+        babel({
+          exclude: 'node_modules/**',
+        }),
         nodeResolve({
           jsnext: true,
         }),
         commonjsPlugin,
-        babel({
-          exclude: 'node_modules/**',
-        }),
         replace({
           'process.env.NODE_ENV': JSON.stringify('production'),
         }),
