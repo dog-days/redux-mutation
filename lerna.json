@@ -1,8 +1,7 @@
 {
-  "packages": [
-    "./",
-    "examples/*"
-  ],
+  "packages": ["./", "examples/*", "packages/*"],
   "version": "0.0.6",
+  "npmClient": "npm",
+  "npmClientArgs": ["--no-lockfile"],
   "hoist": true
 }
