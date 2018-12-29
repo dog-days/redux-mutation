@@ -12,7 +12,7 @@ describe('configBasicCreateStore', () => {
   it('throws if the reducerAndCenters is not a plain object or a function', () => {
     const errString =
       'Expect the reducerAndCenters to be a plain object or a function';
-    //createStore
+    // createStore
     expect(() => createStore()).toThrowError(errString);
     expect(() => createStore('a')).toThrowError(errString);
     expect(() => createStore(1)).toThrowError(errString);
@@ -28,7 +28,7 @@ describe('configBasicCreateStore', () => {
     ).not.toThrowError();
     expect(() => createStore(reducer)).not.toThrowError();
 
-    //replaceReducerAndCenters
+    // replaceReducerAndCenters
     const store = createStore({ reducer, centers: [center] });
     expect(() => store.replaceReducerAndCenters()).toThrowError(errString);
     expect(() => store.replaceReducerAndCenters('a')).toThrowError(errString);
@@ -71,7 +71,7 @@ describe('configBasicCreateStore', () => {
     expect(store.getState()).toBe(1);
     store.replaceReducerAndCenters(replacedReducer);
     store.dispatch({ type: 'increment' });
-    //prevState + 3
+    // prevState + 3
     expect(store.getState()).toBe(4);
   });
   it('accepts preloadedState as the second argument', () => {
@@ -84,11 +84,11 @@ describe('configBasicCreateStore', () => {
       expect(action).toEqual(action);
       return next(action);
     };
-    //only redcuer
+    // only redcuer
     let store = createStore(reducer, applyMiddleware(spyMiddleware));
     store.dispatch(action);
     expect(store.getState()).toBe(1);
-    //reducerAndCenters
+    // reducerAndCenters
     store = createStore(
       { reducer, centers: [center] },
       applyMiddleware(spyMiddleware)
@@ -103,7 +103,7 @@ describe('configBasicCreateStore', () => {
       expect(action).toEqual(action);
       return next(action);
     };
-    //only redcuer
+    // only redcuer
     let store = createStore(
       reducer,
       initialState,
@@ -111,7 +111,7 @@ describe('configBasicCreateStore', () => {
     );
     store.dispatch(action);
     expect(store.getState()).toBe(initialState + 1);
-    //reducerAndCenters
+    // reducerAndCenters
     store = createStore(
       { reducer, centers: [center] },
       initialState,

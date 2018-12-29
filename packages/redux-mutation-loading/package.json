@@ -1,0 +1,19 @@
+{
+  "name": "redux-mutation-loading",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "homepage": "https://github.com/dog-days/redux-mutation",
+  "repository": "https://github.com/dog-days/redux-mutation",
+  "bugs": "https://github.com/dog-days/redux-mutation/issues",
+  "author": "xianshannan <xianshannan@qq.com>",
+  "description": "A redux-mutation loading plugin.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "redux-mutation": "^0.0.6"
+  },
+  "license": "ISC"
+}

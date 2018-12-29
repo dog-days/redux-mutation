@@ -2,7 +2,7 @@ import applyPlugin from '../src/applyPlugin';
 
 describe('applyPlugin', () => {
   it('throws if plugin is not valid', () => {
-    //plugin 类型错误
+    // plugin 类型错误
     const pluginTypeErrStr = 'Expect the plugin to be a plain object';
     expect(() => applyPlugin('a')).toThrowError(pluginTypeErrStr);
     expect(() => applyPlugin(1)).toThrowError(pluginTypeErrStr);
@@ -13,7 +13,7 @@ describe('applyPlugin', () => {
     expect(() => applyPlugin(() => {})).toThrowError(pluginTypeErrStr);
     expect(() => applyPlugin()).not.toThrowError();
     expect(() => applyPlugin({})).not.toThrowError();
-    //allowed property
+    // allowed property
     expect(() => applyPlugin({ test: 2 })).toThrowError(
       'Expect the plugin to contain the allowed property'
     );
@@ -25,7 +25,7 @@ describe('applyPlugin', () => {
         reducerEnhancer: () => {},
       })
     ).not.toThrowError();
-    //plugin extraReducers 类型错误
+    // plugin extraReducers 类型错误
     const extraReducersErrStr = 'Expect the extraReducers to be a plain object';
     expect(() => applyPlugin({ extraReducers: 'a' })).toThrowError(
       extraReducersErrStr
@@ -46,7 +46,7 @@ describe('applyPlugin', () => {
       extraReducersErrStr
     );
     expect(() => applyPlugin({ extraReducers: {} })).not.toThrowError();
-    //plugin extraCenters 类型错误
+    // plugin extraCenters 类型错误
     const extraCentersErrStr = 'Expect the extraCenters to be an array';
     expect(() => applyPlugin({ extraCenters: 'a' })).toThrowError(
       extraCentersErrStr
@@ -67,7 +67,7 @@ describe('applyPlugin', () => {
       extraCentersErrStr
     );
     expect(() => applyPlugin({ extraCenters: [] })).not.toThrowError();
-    //plugin centerEnhancer 类型错误
+    // plugin centerEnhancer 类型错误
     const centerEnhancerErrStr = 'Expect the centerEnhancer to be a function';
     expect(() => applyPlugin({ centerEnhancer: 'a' })).toThrowError(
       centerEnhancerErrStr
@@ -86,7 +86,7 @@ describe('applyPlugin', () => {
     );
     expect(() => applyPlugin({ centerEnhancer: [] })).toThrowError();
     expect(() => applyPlugin({ centerEnhancer: () => {} })).not.toThrowError();
-    //plugin reducerEnhancer 类型错误
+    // plugin reducerEnhancer 类型错误
     const reducerEnhancerErrStr = 'Expect the reducerEnhancer to be a function';
     expect(() => applyPlugin({ reducerEnhancer: 'a' })).toThrowError(
       reducerEnhancerErrStr
@@ -105,7 +105,7 @@ describe('applyPlugin', () => {
     );
     expect(() => applyPlugin({ reducerEnhancer: [] })).toThrowError();
     expect(() => applyPlugin({ reducerEnhancer: () => {} })).not.toThrowError();
-    //不同plugin extraReducers key值重复
+    // 不同plugin extraReducers key值重复
     expect(() =>
       applyPlugin(
         { extraReducers: { test: () => {} } },
@@ -128,19 +128,19 @@ describe('applyPlugin', () => {
     const originalReducerSpy = state => state;
     const action = { type: '@@action' };
 
-    //plugins is undefined
+    // plugins is undefined
     pluginObject = applyPlugin();
     expect(pluginObject.extraReducers).toEqual({});
     expect(pluginObject.extraCenters).toEqual([]);
     expect(pluginObject.reducerEnhancer(1)).toBe(1);
     expect(pluginObject.centerEnhancer(1)).toBe(1);
-    //plugins is [{}]
+    // plugins is [{}]
     pluginObject = applyPlugin({});
     expect(pluginObject.extraReducers).toEqual({});
     expect(pluginObject.extraCenters).toEqual([]);
     expect(pluginObject.reducerEnhancer(originalReducerSpy)(1)).toBe(1);
     expect(pluginObject.centerEnhancer(originalCenterSpy)(1)).toBe(1);
-    //plugins is [{...}]
+    // plugins is [{...}]
     extraReducers = {
       reduerOne: () => {},
       reduerTwo: () => {},
@@ -172,9 +172,9 @@ describe('applyPlugin', () => {
     ).toEqual(action);
     expect(reducerEnhancerCounter).toBe(1);
     expect(centerEnhancerCounter).toBe(1);
-    //plugins is [{...},{...},{...},{}]
-    reducerEnhancerCounter = 0; //重置counter
-    centerEnhancerCounter = 0; //重置counter
+    // plugins is [{...},{...},{...},{}]
+    reducerEnhancerCounter = 0; // 重置counter
+    centerEnhancerCounter = 0; // 重置counter
     const plugins = [
       {
         extraReducers: {

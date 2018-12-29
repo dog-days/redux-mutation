@@ -3,7 +3,7 @@ import { SEPARATOR } from '../src/utils/const';
 
 describe('convertMutations', () => {
   it('throws if using the mutations not correctly', () => {
-    //mutations type
+    // mutations type
     const mutationsTypeStr = 'Expect the mutations to be an array';
     expect(() => convertMutations()).toThrowError(mutationsTypeStr);
     expect(() => convertMutations('test')).toThrowError(mutationsTypeStr);
@@ -12,7 +12,7 @@ describe('convertMutations', () => {
     expect(() => convertMutations(true)).toThrowError(mutationsTypeStr);
     expect(() => convertMutations({})).toThrowError(mutationsTypeStr);
     expect(() => convertMutations(() => {})).toThrowError(mutationsTypeStr);
-    //mutation type
+    // mutation type
     const mutationTypeStr = 'Expect the mutation to be a plain object';
     expect(() => convertMutations(['test'])).toThrowError(mutationTypeStr);
     expect(() => convertMutations([1])).toThrowError(mutationTypeStr);
@@ -23,7 +23,7 @@ describe('convertMutations', () => {
     expect(() =>
       convertMutations([{ namespace: 'test', initialState: null }])
     ).not.toThrowError();
-    //namespace err
+    // namespace err
     const namespaceErrString = 'Expect the namespace to be a string';
     expect(() => convertMutations([{}])).toThrowError(namespaceErrString);
     expect(() => convertMutations([{ initialState: 'test' }])).toThrowError(
@@ -279,7 +279,7 @@ describe('convertMutations', () => {
     ).not.toThrowError();
   });
   it('throws if using the options not correctly', () => {
-    //options extraReducers 类型错误
+    // options extraReducers 类型错误
     const extraReducersErrStr = 'Expect the extraReducers to be a plain object';
     expect(() => convertMutations([], { extraReducers: 'a' })).toThrowError(
       extraReducersErrStr
@@ -302,7 +302,7 @@ describe('convertMutations', () => {
     expect(() =>
       convertMutations([], { extraReducers: {} })
     ).not.toThrowError();
-    //options extraCenters 类型错误
+    // options extraCenters 类型错误
     const extraCentersErrStr = 'Expect the extraCenters to be an array';
     expect(() => convertMutations([], { extraCenters: 'a' })).toThrowError(
       extraCentersErrStr
@@ -323,7 +323,7 @@ describe('convertMutations', () => {
       extraCentersErrStr
     );
     expect(() => convertMutations([], { extraCenters: [] })).not.toThrowError();
-    //options centerEnhancer 类型错误
+    // options centerEnhancer 类型错误
     const centerEnhancerErrStr = 'Expect the centerEnhancer to be a function';
     expect(() => convertMutations([], { centerEnhancer: 'a' })).toThrowError(
       centerEnhancerErrStr
@@ -344,7 +344,7 @@ describe('convertMutations', () => {
     expect(() =>
       convertMutations([], { centerEnhancer: () => {} })
     ).not.toThrowError();
-    //options reducerEnhancer 类型错误
+    // options reducerEnhancer 类型错误
     const reducerEnhancerErrStr = 'Expect the reducerEnhancer to be a function';
     expect(() => convertMutations([], { reducerEnhancer: 'a' })).toThrowError(
       reducerEnhancerErrStr
@@ -365,7 +365,7 @@ describe('convertMutations', () => {
     expect(() =>
       convertMutations([], { reducerEnhancer: () => {} })
     ).not.toThrowError();
-    //options generatorsToAsync 类型错误
+    // options generatorsToAsync 类型错误
     const generatorsToAsyncErrStr =
       'Expect the generatorsToAsync to be a function';
     expect(() => convertMutations([], { generatorsToAsync: 'a' })).toThrowError(
@@ -389,7 +389,7 @@ describe('convertMutations', () => {
     expect(() =>
       convertMutations([], { generatorsToAsync: () => {} })
     ).not.toThrowError();
-    //options centersAliasName 类型错误
+    // options centersAliasName 类型错误
     const centersAliasNameErrStr = 'Expect the centersAliasName to be a string';
     expect(() =>
       convertMutations([], { centersAliasName: () => {} })

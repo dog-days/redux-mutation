@@ -30,11 +30,11 @@ describe('createStore', () => {
     expect(incrementSpy.callCount).toBe(1);
     expect(incrementAsyncSpy.callCount).toBe(1);
     expect(store.getState()[generatorNamespace]).toBe(1);
-    //replaceMutations
+    // replaceMutations
     store.replaceMutations(replacedGeneratorMutation);
     store.dispatch({ type: `${generatorNamespace}/increment_async` });
     await delay(delayTime + 20);
-    //prevState + 2
+    // prevState + 2
     expect(store.getState()[generatorNamespace]).toBe(1 + 2);
   });
   it('uses plugins accepting options as the third argument', async () => {
@@ -64,7 +64,7 @@ describe('createStore', () => {
     const store = configCreateStore(applyPlugin(errorPlugin), {
       generatorsToAsync,
     })(mutations);
-    //异步的error，try catch不到
+    // 异步的error，try catch不到
     const err = await store
       .dispatch({
         type: `${generatorNamespace}/increment_async`,

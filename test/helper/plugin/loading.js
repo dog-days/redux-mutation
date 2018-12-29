@@ -18,7 +18,7 @@ export default {
       });
       const result = await center(...args);
       // console.log(currentActionLoadingType, 111);
-      //防止中途currentActionLoadingType和currentNamespace被其他dispatch覆盖。
+      // 防止中途currentActionLoadingType和currentNamespace被其他dispatch覆盖。
       currentActionLoadingType = actionType + ENDLOADINGNAMESPACESUFFIXNAME;
       currentNamespace = currentMutation.namespace;
       // console.log(currentActionLoadingType, 222);

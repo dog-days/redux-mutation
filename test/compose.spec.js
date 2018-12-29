@@ -2,7 +2,7 @@ import compose from '../src/compose';
 
 describe('compose', () => {
   describe('mutiple arguments', () => {
-    //mutiple argument 的测试跟基于 redux compose 测试
+    // mutiple argument 的测试跟基于 redux compose 测试
     it('composes from right to left', () => {
       const plus = (x, y, z) => x + y + z;
       const multiplication = (x, y, z) => x * y * z;
@@ -51,8 +51,8 @@ describe('compose', () => {
     });
   });
   describe('single argument', () => {
-    //single argument 的测试跟 redux compose 测试完全一样
-    //https://github.com/reduxjs/redux/blob/master/test/compose.spec.js
+    // single argument 的测试跟 redux compose 测试完全一样
+    // https://github.com/reduxjs/redux/blob/master/test/compose.spec.js
     it('composes from right to left', () => {
       const double = x => x * 2;
       const square = x => x * x;

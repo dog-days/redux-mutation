@@ -50,10 +50,10 @@ export default function configCreateStore(plugin = {}, options = {}) {
   return (mutations, preloadedState, enhancer) => {
     checkMutations(mutations);
     let reducerAndCenters = {};
-    let onlyOriginalReducer = false; //mutations格式是否是reducer格式
+    let onlyOriginalReducer = false; // mutations格式是否是reducer格式
     if (typeof mutations === 'function') {
-      //mutations是redux reducer格式
-      //即function(state,action)
+      // mutations是redux reducer格式
+      // 即function(state,action)
       onlyOriginalReducer = true;
       reducerAndCenters.reducer = mutations;
       if (!isObjectEmpty(options)) {
@@ -62,10 +62,10 @@ export default function configCreateStore(plugin = {}, options = {}) {
     } else {
       mutations = functionsToAnys(mutations);
       setMutationByNamespace(mutations);
-      //options不做过滤
+      // options不做过滤
       reducerAndCenters = convertMutations(mutations, options);
     }
-    //options不做过滤
+    // options不做过滤
     const store = configBasicCreateStore(options)(
       reducerAndCenters,
       preloadedState,
@@ -94,7 +94,7 @@ function createReplaceMutations(
   { store, onlyOriginalReducer, mutationByNamespace },
   options
 ) {
-  //热替换或动态加载中使用
+  // 热替换或动态加载中使用
   /**
    * 可替换单个和多个
    * @param {object | array} mutations 请看functions-to.ays.js和conver-mutation-object.js注释
@@ -111,10 +111,10 @@ function createReplaceMutations(
         throw new TypeError('Expect the mutation namespace to be defined.');
       }
       mutationByNamespace[mutation.namespace] = mutation;
-      //replaceMutations initialState无效。
+      // replaceMutations initialState无效。
       mutationByNamespace[mutation.namespace].initialState = null;
     });
-    //重新赋值
+    // 重新赋值
     newMutations = [];
     for (let key in mutationByNamespace) {
       newMutations.push(mutationByNamespace[key]);

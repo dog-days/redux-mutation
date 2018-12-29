@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import { delay } from './helper/util';
-import { createStore, SEPARATOR } from '../src';
+import { createStore } from '../src';
 import reducer, { replacedReducer } from './helper/reducer';
 import mutations, {
   counterMutation,
@@ -32,11 +32,11 @@ describe('createStore', () => {
     expect(() => createStore(1)).toThrowError(throwArgs);
     expect(() => createStore(null)).toThrowError(throwArgs);
     expect(() => createStore(true)).toThrowError(throwArgs);
-    //array
+    // array
     expect(() => createStore(mutations)).not.toThrowError();
-    //function
+    // function
     expect(() => createStore(() => {})).not.toThrowError();
-    //object
+    // object
     expect(() => createStore(counterMutation)).not.toThrowError();
   });
 
@@ -54,7 +54,7 @@ describe('createStore', () => {
   });
 
   it('throws if the action type is not a string(mutation mode)', () => {
-    //mutation模式做了限制
+    // mutation模式做了限制
     const store = createStore(mutations);
     const throwArgs = ['Expect the action type to be a string'];
     expect(() => store.dispatch({ type: 0 })).toThrowError(...throwArgs);
@@ -79,7 +79,7 @@ describe('createStore', () => {
       .dispatch({ type: `${counterNamespace}/put_self_error_async` })
       .catch(e => {
         const flag = !!e.message.match('Can not put to center itself');
-        //eslint-disable-next-line
+        // eslint-disable-next-line
         expect(flag).toBe(true);
         done();
       });
@@ -91,12 +91,12 @@ describe('createStore', () => {
     store.dispatch({ type: `${counterNamespace}/warning_async` });
     await delay(20);
     expect(stub.callCount).toBe(1);
-    //还原
+    // 还原
     stub.restore();
   });
 
   it('should put to specific reducer', async () => {
-    //mutation is object
+    // mutation is object
     let incrementSpy = sinon.spy(counterMutation.reducers.increment);
     let putAsyncSpy = sinon.spy(counterMutation.centers.put_async);
     counterMutation.reducers.increment = incrementSpy;
@@ -110,14 +110,14 @@ describe('createStore', () => {
     expect(putAsyncSpy.callCount).toBe(1);
     expect(store.getState()[counterNamespace]).toBe(prevValue + 1);
 
-    //mutation is function
+    // mutation is function
     prevValue = store.getState()[functionTypeNamespace];
     expect(prevValue).toBe(1);
     store.dispatch({ type: `${functionTypeNamespace}/put_async` });
     await delay(20);
     expect(store.getState()[functionTypeNamespace]).toBe(prevValue + 3);
 
-    //mutation.centers mutation.reducers is function
+    // mutation.centers mutation.reducers is function
     prevValue = store.getState()[centersReducersFunctionTypeNamespace];
     expect(prevValue).toBe(1);
     store.dispatch({
@@ -165,17 +165,17 @@ describe('createStore', () => {
 
   it('should replace the mutations', async () => {
     const store = createStore(mutations);
-    //object
+    // object
     store.replaceMutations(replacedMutation);
     store.dispatch({ type: `${counterNamespace}/put_async` });
     await delay(20);
     expect(store.getState()[counterNamespace]).toBe(3);
-    //array
+    // array
     store.replaceMutations([replacedMutation]);
     store.dispatch({ type: `${counterNamespace}/put_async` });
     await delay(20);
     expect(store.getState()[counterNamespace]).toBe(3 * 2);
-    //array [function]
+    // array [function]
     store.replaceMutations([
       function() {
         return replacedMutation;
@@ -190,11 +190,11 @@ describe('createStore', () => {
     const store = createStore(reducer);
     expect(store.getState()).toBe(0);
     store.dispatch({ type: 'increment' });
-    //0 + 1
+    // 0 + 1
     expect(store.getState()).toBe(1);
     store.replaceMutations(replacedReducer);
     store.dispatch({ type: 'increment' });
-    //1 + 3
+    // 1 + 3
     expect(store.getState()).toBe(4);
   });
 });

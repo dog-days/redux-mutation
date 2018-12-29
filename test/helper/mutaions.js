@@ -1,5 +1,5 @@
 export const delayTime = 200;
-//begin----counterMutation
+// begin----counterMutation
 export const counterNamespace = 'counter';
 export const counterMutation = {
   namespace: counterNamespace,
@@ -27,7 +27,7 @@ export const counterMutation = {
 };
 export const replacedMutation = {
   namespace: counterNamespace,
-  //replaceMutations中initialState无效，可以不定义
+  // replaceMutations中initialState无效，可以不定义
   reducers: {
     increment(state) {
       return state + 3;
@@ -88,7 +88,7 @@ export const generatorMutation = {
       yield put({ type: 'increment' });
     },
     test_async() {
-      //error plugin中用到
+      // error plugin中用到
     },
   },
 };
@@ -107,7 +107,7 @@ export const replacedGeneratorMutation = {
   },
 };
 
-//end---counterMutation
+// end---counterMutation
 export default [
   counterMutation,
   functionTypeMutation,

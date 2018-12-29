@@ -93,12 +93,12 @@ class ConvertMutations {
       },
       {
         reducers: {},
-        //跟redux-centers不一致，这里需要其他数据
-        //{[namespace]: {center,mutation}}
+        // 跟redux-centers不一致，这里需要其他数据
+        // {[namespace]: {center,mutation}}
         centers: [],
       }
     );
-    //而外的reducer和centers，用作插件，插件的代码是要放在一起的
+    // 而外的reducer和centers，用作插件，插件的代码是要放在一起的
     let { extraReducers, extraCenters, generatorsToAsync } = this.options;
     if (reducersAndCenters.reducers) {
       reducersAndCenters.reducers = {
@@ -147,8 +147,8 @@ class ConvertMutations {
 
     return {
       reducer: (state, action) => {
-        //兼容state，推荐使用initialState
-        //初始化state
+        // 兼容state，推荐使用initialState
+        // 初始化state
         let initialState = mutation.initialState;
         if (initialState === undefined) {
           initialState = mutation.state;
@@ -157,7 +157,7 @@ class ConvertMutations {
           state = initialState;
         }
         // console.log(action, initialState, state, namespace);
-        //bind是为了后续覆盖reducers和centers的上下问题
+        // bind是为了后续覆盖reducers和centers的上下问题
         return this.toReducer(
           reducersObject,
           { namespace, mutation },
@@ -198,13 +198,13 @@ class ConvertMutations {
     }
     for (let key in reducerObject) {
       const fn = reducerObject[key];
-      //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
+      // reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
       if (action.type === this.getActionType(namespace, key)) {
-        //转换的时候，绑定fn上下文为mutation
+        // 转换的时候，绑定fn上下文为mutation
         return fn.bind(mutation)(state, action);
       }
     }
-    //默认使用原来的state
+    // 默认使用原来的state
     return state;
   }
   /**
@@ -239,13 +239,13 @@ class ConvertMutations {
     for (let centerName in centersObject) {
       // console.log(key);
       const fn = centersObject[centerName];
-      //reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
+      // reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
       if (action.type === this.getActionType(namespace, centerName)) {
-        //当前运行的centerName，put中需使用
+        // 当前运行的centerName，put中需使用
         this.currentCenterName = centerName;
         let center;
         if (generatorsToAsync) {
-          //转换的时候，绑定fn上下文为mutation
+          // 转换的时候，绑定fn上下文为mutation
           center = generatorsToAsync(fn.bind(mutation))[0];
         } else {
           // 转换的时候，绑定fn上下文为mutation
@@ -262,8 +262,8 @@ class ConvertMutations {
         )(action, newCenterUtils);
       }
     }
-    //center配置shouldRunReducer=false，就必须返回true
-    //return true不影响shouldRunReducer=true，统一返回true；
+    // center配置shouldRunReducer=false，就必须返回true
+    // return true不影响shouldRunReducer=true，统一返回true；
     return true;
   }
   /**
@@ -310,10 +310,10 @@ class ConvertMutations {
       }
       let newType = actionType;
       if (!~newType.indexOf(SEPARATOR)) {
-        //mutation.reducers和mutation.centers的属性是不能包含`${SEPARATOR}`
-        //actionType只是使用了mutation.centers[centerName]
-        //或者mutation.recuers[reducerName]
-        //那么就可以当做，是在当前的mutation进行内部put
+        // mutation.reducers和mutation.centers的属性是不能包含`${SEPARATOR}`
+        // actionType只是使用了mutation.centers[centerName]
+        // 或者mutation.recuers[reducerName]
+        // 那么就可以当做，是在当前的mutation进行内部put
         newType = `${lastNamespace}${SEPARATOR}${actionType}`;
       }
       return new Promise(resolve => {
@@ -373,15 +373,15 @@ class ConvertMutations {
       if (!Array.isArray(mutations)) {
         throw new TypeError('Expect the mutations to be an array.');
       }
-      //存放所有namepsace
+      // 存放所有namepsace
       const allNamespace = {};
       mutations.forEach(mutation => {
         if (!isPlainObject(mutation)) {
           throw new TypeError('Expect the mutation to be a plain object.');
         }
-        //configCreateStore中做了mutaion类型判断，所有不用在做判断。
+        // configCreateStore中做了mutaion类型判断，所有不用在做判断。
         if (typeof mutation.namespace !== 'string') {
-          //优先namespace判断
+          // 优先namespace判断
           throw new TypeError('Expect the namespace to be a string.');
         }
         if (
@@ -395,7 +395,7 @@ class ConvertMutations {
         } else {
           allNamespace[mutation.namespace] = true;
         }
-        //存放所有当前mutation的reducers和centers的property
+        // 存放所有当前mutation的reducers和centers的property
         const reducersCentersKeysFlag = {};
         /**
          * 检测mutation中的centers或者reducers是否合法
@@ -434,9 +434,9 @@ class ConvertMutations {
               }
             }
           }
-          //reducers和centers 函数模式如何在运行的时候报错，就不在这里校验mutation，在 dispatch 后校验
+          // reducers和centers 函数模式如何在运行的时候报错，就不在这里校验mutation，在 dispatch 后校验
           if (typeof centersOrReducers === 'function') {
-            //添加action.payload 简单防止报错
+            // 添加action.payload 简单防止报错
             centersOrReducers = centersOrReducers({}, {}) || {};
           }
           trowMutationErrors(centersOrReducers);

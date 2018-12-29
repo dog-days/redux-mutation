@@ -10,7 +10,7 @@ export {
   combineReducers,
   applyMiddleware,
   compose,
-  //new and changed api below
+  // The new and changed api below
   createStore,
   configCreateStore,
   applyPlugin,

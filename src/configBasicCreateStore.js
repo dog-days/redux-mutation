@@ -47,9 +47,9 @@ export default function configBasicCreateStore(options) {
       enhancer = preloadedState;
       preloadedState = undefined;
     }
-    //不做reducer类型判断，由redux判断
+    // 不做reducer类型判断，由redux判断
     let reducer = {};
-    //不做centers类型判断，由redux-center判断
+    // 不做centers类型判断，由redux-center判断
     let centers = [];
     let isOnlyReducer = false;
     if (typeof reducerAndCenters === 'function') {
@@ -84,7 +84,7 @@ export default function configBasicCreateStore(options) {
   };
 }
 function createReplaceReducerAndCenters(replaceReducer, replaceCenters) {
-  //热替换或动态加载中使用
+  // 热替换或动态加载中使用
   return reducerAndCenters => {
     checkReducerAndCenters(reducerAndCenters);
     let reducer;
