@@ -3,6 +3,8 @@ module.exports = {
 
   rules: {
     'jsx-a11y/href-no-hash': 'off',
+    'no-var': 'error',
+    'spaced-comment': ['error', 'always', { exceptions: ['-', '+'] }],
   },
 
   overrides: [
