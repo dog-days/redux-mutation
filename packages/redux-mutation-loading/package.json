@@ -10,10 +10,51 @@
   "author": "xianshannan <xianshannan@qq.com>",
   "description": "A redux-mutation loading plugin.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "rimraf coverage && cross-env NODE_ENV=TEST jest",
+    "clean": "rimraf lib dist es coverage",
+    "build": "npm run clean && rollup -c",
+    "build-watch": "rollup -c --watch"
   },
   "dependencies": {
+    "@babel/runtime": "7.2.0",
     "redux-mutation": "^0.0.6"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "7.2.0",
+    "babel-jest": "^23.6.0",
+    "cross-env": "^5.1.1",
+    "jest": "^23.6.0",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.66.6",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.1.0",
+    "rollup-plugin-terser": "^3.0.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/src/",
+      "/lib/",
+      "/es/",
+      "/dist/",
+      "/coverage/",
+      "/examples/",
+      "/docs/"
+    ],
+    "testRegex": "(/test/.*\\.spec.js)$",
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageReporters": [
+      "html",
+      "lcovonly",
+      "json",
+      "text"
+    ]
   },
   "license": "ISC"
 }
