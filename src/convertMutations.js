@@ -147,14 +147,14 @@ class ConvertMutations {
 
     return {
       reducer: (state, action) => {
-        // 兼容state，推荐使用initialState
         // 初始化state
-        let initialState = mutation.initialState;
-        if (initialState === undefined) {
-          initialState = mutation.state;
+        if (mutation.initialState === undefined) {
+          // 兼容state，推荐使用initialState
+          // initailState 优先级更高
+          mutation.initialState = mutation.state;
         }
         if (state === undefined) {
-          state = initialState;
+          state = mutation.initialState;
         }
         // console.log(action, initialState, state, namespace);
         // bind是为了后续覆盖reducers和centers的上下问题
