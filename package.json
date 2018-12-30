@@ -83,11 +83,13 @@
   },
   "scripts": {
     "cm": "git-cz",
+    "test-all": "lerna run test",
     "test": "rimraf coverage && cross-env NODE_ENV=TEST jest",
     "postinstall": "node ./postinstall.js",
     "bootstrap": "lerna bootstrap --ignore-scripts",
     "lint": "eslint src/**",
     "clean": "rimraf lib dist es coverage",
+    "build-all": "lerna run build",
     "build": "npm run clean && rollup -c",
     "build-watch": "rollup -c --watch",
     "build-publish": "npm run test && npm run build && lerna publish",
@@ -105,6 +107,7 @@
       "/dist/",
       "/coverage/",
       "/examples/",
+      "/packages/",
       "/docs/"
     ],
     "testRegex": "(/test/.*\\.spec.js)$",
