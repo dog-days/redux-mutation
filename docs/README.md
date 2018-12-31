@@ -26,3 +26,5 @@
   - [compose](api/compose.md)
   - [mutation](api/mutation.md)
   - [other api](api/other.md)
+- 插件列表
+  - [redux-mutation-loading](../packages/redux-mutation-loading/README.md)
