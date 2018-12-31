@@ -8,6 +8,7 @@ export const counterMutation = {
   reducers: {
     increment(state) {
       return {
+        ...state,
         count: state.count + 1,
       };
     },
@@ -20,23 +21,4 @@ export const counterMutation = {
 };
 // end---counterMutation
 
-// begin----noLoadingMutation
-export const noLoadingNamespace = 'counter2';
-export const noLoadingMutation = {
-  namespace: noLoadingNamespace,
-  // 非 plain obejct 是不会触发 loading 的
-  initialState: 0,
-  reducers: {
-    increment(state) {
-      return state + 1;
-    },
-  },
-  centers: {
-    async increment_async(action, { put }) {
-      await put({ type: 'increment' });
-    },
-  },
-};
-// end---noLoadingMutation
-
-export default [counterMutation, noLoadingMutation];
+export default [counterMutation];
