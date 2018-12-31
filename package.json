@@ -1,5 +1,5 @@
 {
-  "version": "0.0.6",
+  "version": "0.0.7",
   "name": "redux-mutation",
   "main": "lib/redux-mutation.js",
   "jsnext:main": "es/redux-mutation.js",
@@ -37,17 +37,17 @@
     "redux-center": "0.0.7"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.2.1",
-    "@commitlint/config-conventional": "^7.1.2",
-    "commitizen": "^3.0.5",
-    "cz-conventional-changelog": "^2.1.0",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
+    "@commitlint/cli": "^7.2.1",
+    "@commitlint/config-conventional": "^7.1.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "9.0.0",
     "babel-jest": "^23.6.0",
+    "commitizen": "^3.0.5",
     "cross-env": "^5.1.1",
+    "cz-conventional-changelog": "^2.1.0",
     "eslint": "5.6.0",
     "eslint-config-react-app": "^3.0.5",
     "eslint-plugin-flowtype": "^3.1.4",
