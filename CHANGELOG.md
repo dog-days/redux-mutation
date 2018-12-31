@@ -1,3 +1,17 @@
+## 0.0.7(2018-12-31)
+
+### Bug Fix
+
+无
+
+### Update
+
+无
+
+### New Function
+
+- Add redux-mutation-loading plugin packages.
+
 ## 0.0.6(2018-12-25)
 
 ### Bug Fix
