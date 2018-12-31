@@ -3,7 +3,7 @@ sudo: required
 language: node_js
 node_js:
   - '11.0.0'
-script: 'npm run test'
+script: 'npm run test-all'
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 branches:
