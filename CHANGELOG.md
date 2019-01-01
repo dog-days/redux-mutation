@@ -1,3 +1,17 @@
+## 0.0.8(2018-12-31)
+
+### Bug Fix
+
+- 解决 `redux-mutation-loading` 发布的代码不是最新的代码问题
+
+### Update
+
+无
+
+### New Function
+
+无
+
 ## 0.0.7(2018-12-31)
 
 ### Bug Fix
