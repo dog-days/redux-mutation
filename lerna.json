@@ -1,13 +1,12 @@
 {
-  "packages": [
-    "./",
-    "examples/*",
-    "packages/*"
-  ],
+  "lerna": "3.4.3",
+  "packages": ["./", "examples/*", "packages/*"],
   "version": "0.0.7",
   "npmClient": "npm",
-  "npmClientArgs": [
-    "--no-lockfile"
-  ],
+  "command": {
+    "publish": {
+      "ignoreChanges": ["*.md"]
+    }
+  },
   "hoist": true
 }
