@@ -1,11 +1,17 @@
 {
   "lerna": "3.4.3",
-  "packages": ["./", "examples/*", "packages/*"],
-  "version": "0.0.7",
+  "packages": [
+    "./",
+    "examples/*",
+    "packages/*"
+  ],
+  "version": "0.0.8",
   "npmClient": "npm",
   "command": {
     "publish": {
-      "ignoreChanges": ["*.md"]
+      "ignoreChanges": [
+        "*.md"
+      ]
     }
   },
   "hoist": true
