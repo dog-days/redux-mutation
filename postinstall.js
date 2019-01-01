@@ -7,10 +7,11 @@ if (fs.existsSync(path.resolve(process.cwd(), '.gitignore'))) {
   spawn.sync('npm', ['run', 'bootstrap'], {
     stdio: 'inherit',
   });
-  spawn.sync('npm', ['run', 'test-all'], {
+  // 必须在 npm run test 之前 build
+  spawn.sync('npm', ['run', 'build-all'], {
     stdio: 'inherit',
   });
-  spawn.sync('npm', ['run', 'build-all'], {
+  spawn.sync('npm', ['run', 'test-all'], {
     stdio: 'inherit',
   });
 }
