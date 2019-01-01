@@ -55,6 +55,7 @@ export default function createLoadingPlugin(options = {}) {
       [namespace](state = {}, { type, payload }) {
         if (type === LOADINGSHOW || type === LOADINGHIDE) {
           return {
+            ...state,
             [payload.namespace]: payload.loading,
           };
         } else {
