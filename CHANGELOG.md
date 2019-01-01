@@ -1,4 +1,18 @@
-## 0.0.8(2018-12-31)
+## 0.0.9(2018-01-01)
+
+### Bug Fix
+
+- 解决 `redux-mutation-loading` 状态被重置为 undefined 的问题
+
+### Update
+
+无
+
+### New Function
+
+无
+
+## 0.0.8(2018-01-01)
 
 ### Bug Fix
 
