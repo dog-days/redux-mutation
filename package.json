@@ -92,7 +92,7 @@
     "build-all": "lerna run build",
     "build": "npm run clean && rollup -c",
     "build-watch": "rollup -c --watch",
-    "build-publish": "npm run test-all && npm run build-all && lerna publish",
+    "build-publish": "npm run build-all && npm run test-all && lerna publish",
     "prettier": "prettier --write './**/*(*.js|*.jsx|*.less|*.css)'",
     "counter": "npm run start --prefix examples/counter",
     "shop": "npm run start --prefix examples/shopping-cart",
