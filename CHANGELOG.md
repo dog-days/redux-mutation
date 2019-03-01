@@ -1,3 +1,17 @@
+## 0.0.10(2018-03-01)
+
+### Bug Fix
+
+- fix the same center name put error between two different mutation
+
+### Update
+
+无
+
+### New Function
+
+无
+
 ## 0.0.9(2018-01-01)
 
 ### Bug Fix
