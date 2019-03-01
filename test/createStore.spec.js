@@ -73,6 +73,15 @@ describe('createStore', () => {
     expect(() => store.dispatch({ type: 'test' })).not.toThrowError();
   });
 
+  it('dose not throws when the center name is the same but the namespace is different', done => {
+    const store = createStore(mutations);
+    store
+      .dispatch({ type: `${counterNamespace}/the_same_center_name` })
+      .then(() => {
+        done();
+      });
+  });
+
   it('throws if using put not correctly', done => {
     const store = createStore(mutations);
     store

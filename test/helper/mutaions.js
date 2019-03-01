@@ -23,6 +23,9 @@ export const counterMutation = {
     async put_self_error_async(action, { put, delay }) {
       await put({ type: 'put_self_error_async' });
     },
+    async the_same_center_name(action, { put, delay }) {
+      await put({ type: 'differentNamespace/the_same_center_name' });
+    },
   },
 };
 export const replacedMutation = {
