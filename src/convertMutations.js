@@ -242,7 +242,7 @@ class ConvertMutations {
       // reducerObject和centerObject的namespace+SEPARATOR+函数名 === action.type
       if (action.type === this.getActionType(namespace, centerName)) {
         // 当前运行的centerName，put中需使用
-        this.currentCenterName = centerName;
+        this.currentActionType = action.type;
         let center;
         if (generatorsToAsync) {
           // 转换的时候，绑定fn上下文为mutation
@@ -319,7 +319,7 @@ class ConvertMutations {
       return new Promise(resolve => {
         if (
           process.env.NODE_ENV !== 'production' &&
-          !!~action.type.indexOf(this.currentCenterName)
+          newType === this.currentActionType
         ) {
           throw new Error('Can not put to center itself.');
         }
