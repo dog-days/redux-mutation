@@ -1,5 +1,5 @@
 {
-  "version": "0.0.10",
+  "version": "0.0.11",
   "name": "redux-mutation",
   "main": "lib/redux-mutation.js",
   "jsnext:main": "es/redux-mutation.js",
