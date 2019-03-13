@@ -1,3 +1,17 @@
+## 0.0.11(2018-03-13)
+
+### Bug Fix
+
+- 解决安装缺失 cross-spawn 错误
+
+### Update
+
+- upgrade redux-mutation to v0.0.8
+
+### New Function
+
+无
+
 ## 0.0.10(2018-03-01)
 
 ### Bug Fix
