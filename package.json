@@ -34,7 +34,8 @@
     "postinstall.js"
   ],
   "dependencies": {
-    "redux-center": "0.0.7"
+    "cross-spawn": "^6.0.5",
+    "redux-center": "0.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
