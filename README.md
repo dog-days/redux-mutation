@@ -8,7 +8,7 @@
 
 `redux-mutation`是基于[redux-center](https://github.com/dog-days/redux-center)，有一个`center`概念，这个可以移步`redux-center`。
 
-`redux-mutation` umd 包gip后只有4.5KB（包括redux-center和redux），所以不用担心会太大。
+`redux-mutation` umd 包 gip 后只有 4.5KB（包括 redux-center 和 redux），所以不用担心会太大。
 
 ## 由来
 
@@ -73,8 +73,10 @@ const mutations = [
         return state - 1;
       },
     },
-    async increment_async(action, { put, call, select }) {
-      await put({ type: 'increment' }, 'counter');
+    centers: {
+      async increment_async(action, { put, call, select }) {
+        await put({ type: 'increment' }, 'counter');
+      },
     },
   },
 ];
@@ -96,7 +98,7 @@ store.dispatch({ type: 'tester/increment_async' });
 - https://unpkg.com/redux-mutation/dist/redux-mutation.js
 - https://unpkg.com/redux-mutation/dist/redux-mutation.min.js
 
-`const { createStore } = window.ReduxMutation`相当于es6 import:
+`const { createStore } = window.ReduxMutation`相当于 es6 import:
 
 ```js
 import { createStore } from 'redux-mutation';
