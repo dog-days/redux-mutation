@@ -12,9 +12,9 @@
 
 ## 由来
 
-目前`redux-mutation`默认用法跟`dva`的 model 是很像的，因为公司前端项目用了阿里[dva](https://github.com/dvajs/dva)的 model 形式，本人也觉得这种用法挺不错。所以`redux-mutation`对外的用法目前是`dva`的 model 用法。
+目前`redux-mutation`默认用法跟 `dva` 的 model 是很像的，因为公司前端项目用了阿里[dva](https://github.com/dvajs/dva)的 model 形式，本人也觉得这种用法挺不错。所以`redux-mutation`对外的用法目前是 `dva` 的 model 用法。
 
-`redux-mutation`默认用法相当于`dva`model 的抽离，本人也会向`dva`的 model 的用法进行兼容，然后`redux-mutation`是可以完全替换掉公司前端类库`redux-saga-model`（dva model 层的抽离）。
+`redux-mutation` 默认用法相当于 `dva` model 的抽离，本人也会向 `dva` 的 model 的用法进行兼容（当然 redux-saga 用法兼容不了，表面用法可以兼容）。
 
 ## 浏览器兼容性
 
@@ -63,6 +63,7 @@ import { createStore } from 'redux-mutation';
 
 const mutations = [
   {
+    // 别名 state，兼容 dva
     initialState: 0,
     namespace: 'counter',
     reducers: {
@@ -73,6 +74,7 @@ const mutations = [
         return state - 1;
       },
     },
+    // 别名 effects，兼容 dva
     centers: {
       async increment_async(action, { put, call, select }) {
         await put({ type: 'increment' }, 'counter');
