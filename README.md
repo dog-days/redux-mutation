@@ -2,19 +2,19 @@
 
 [![build status](https://travis-ci.org/dog-days/redux-mutation.svg?branch=master)](https://travis-ci.org/dog-days/redux-mutation) [![codecov](https://codecov.io/gh/dog-days/redux-mutation/branch/master/graph/badge.svg)](https://codecov.io/gh/dog-days/redux-mutation) [![npm package](https://badge.fury.io/js/redux-mutation.svg)](https://www.npmjs.org/package/redux-mutation) [![NPM downloads](http://img.shields.io/npm/dm/redux-mutation.svg)](https://npmjs.org/package/redux-mutation) ![](https://img.shields.io/badge/minzipped%20size-4.5kb-brightgreen.svg)
 
-> 你完全可以使用`redux-mutation`替换`redux`。
+> 如果你只是用了 Redux，然后想过度到 redux-mutation，你完全可以使用 redux-mutation 替换 redux。迁移特别简单，请看[迁移到 redux-mutation](./docs/other/migrating.md)文章。
 
-`redux-mutaion`是变异版的`redux`，基于[redux](https://redux.js.org/)，**保留`redux`所有原用法的基础上**，定义了新用法。`redux-mutation`同时支持`async`和`generator`用法，这个得益于`redux-center`。
+`redux-mutaion`是变异版的`redux`，基于 [redux](https://redux.js.org/)，**保留 `redux` 所有原用法的基础上**，定义了新用法。`redux-mutation` 同时支持 `async` 和 `generator` 用法，这个得益于 `redux-center`。
 
-`redux-mutation`是基于[redux-center](https://github.com/dog-days/redux-center)，有一个`center`概念，这个可以移步`redux-center`。
+`redux-mutation` 是基于[redux-center](https://github.com/dog-days/redux-center)，有一个`center`概念，这个可以移步 `redux-center`。（如果你用过 dva ，你可以理解 centers 为 effects）。
 
 `redux-mutation` umd 包 gip 后只有 4.5KB（包括 redux-center 和 redux），所以不用担心会太大。
 
 ## 由来
 
-目前`redux-mutation`默认用法跟 `dva` 的 model 是很像的，因为公司前端项目用了阿里[dva](https://github.com/dvajs/dva)的 model 形式，本人也觉得这种用法挺不错。所以`redux-mutation`对外的用法目前是 `dva` 的 model 用法。
+目前`redux-mutation`默认用法跟 `dva` 的 model 是很像的，因为公司前端项目用了阿里 [dva](https://github.com/dvajs/dva) 的 model 形式，本人也觉得这种用法挺不错。所以 `redux-mutation` 对外的用法目前是 `dva` 的 model 用法。
 
-`redux-mutation` 默认用法相当于 `dva` model 的抽离，本人也会向 `dva` 的 model 的用法进行兼容（当然 redux-saga 用法兼容不了，表面用法可以兼容）。
+`redux-mutation` 默认用法相当于 `dva` model 的抽离，本人也会向 `dva` 的 model 的用法进行兼容（当然 redux-saga 用法兼容不了）。
 
 ## 浏览器兼容性
 
@@ -50,7 +50,7 @@ if (typeof Promise === 'undefined') {
 
 ### 安装
 
-需要而外安装`redux >= 3.1.0`，测试是基于`redux@4.0.1`，最低兼容到`redux@3.1.0`版本，这个跟`applyMiddleware`有关。
+需要而外安装`redux >= 3.1.0`，测试是基于 `redux@4.0.1`，最低兼容到 `redux@3.1.0` 版本，这个跟 `applyMiddleware` 有关。
 
 ```sh
 npm i redux redux-mutation
@@ -116,7 +116,7 @@ npm install
 #npm run build （生成例子可用代码，安装完成后，postinstall 会触发）
 ```
 
-然后在根目录下的`./dist`文件夹获取相关的 js 文件。
+然后在根目录下的 `./dist` 文件夹获取相关的 js 文件。
 
 ## 基于源文件运行例子
 
