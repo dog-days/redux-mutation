@@ -4,7 +4,7 @@
 
 > 如果你只是用了 Redux，然后想过度到 redux-mutation，你完全可以使用 redux-mutation 替换 redux。迁移特别简单，请看[迁移到 redux-mutation](./docs/other/migrating.md)文章。
 
-`redux-mutaion`是变异版的`redux`，基于 [redux](https://redux.js.org/)，**保留 `redux` 所有原用法的基础上**，定义了新用法。`redux-mutation` 同时支持 `async` 和 `generator` 用法，这个得益于 `redux-center`。
+`redux-mutaion`是变异版的`redux`，基于 [redux](https://redux.js.org/)，**保留 `redux` 所有原用法的基础上**，定义了新用法（dva model 用方法）。`redux-mutation` 同时支持 `async` 和 `generator` 用法，这个得益于 `redux-center`。
 
 `redux-mutation` 是基于[redux-center](https://github.com/dog-days/redux-center)，有一个`center`概念，这个可以移步 `redux-center`。（如果你用过 dva ，你可以理解 centers 为 effects）。
 
