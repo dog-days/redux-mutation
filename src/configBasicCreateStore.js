@@ -64,10 +64,11 @@ export default function configBasicCreateStore(options) {
       let { ...centerOptions } = options;
       centerInstance = createCenter(centers, centerOptions);
       const centerMiddleware = centerInstance.createCenterMiddleware();
+      const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
       if (!enhancer) {
-        enhancer = applyMiddleware(centerMiddleware);
+        enhancer = composeEnhancers(applyMiddleware(centerMiddleware));
       } else {
-        enhancer = compose(
+        enhancer = composeEnhancers(
           applyMiddleware(centerMiddleware),
           enhancer
         );
