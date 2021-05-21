@@ -10,11 +10,16 @@
 
 `redux-mutation` umd 包 gip 后只有 4.5KB（包括 redux-center 和 redux），所以不用担心会太大。
 
+`redux-mutation` 默认用法相当于 `dva` model 的抽离，本人也会向 `dva` 的 model 的用法进行兼容（当然 redux-saga 用法兼容不了）。
+
 ## 由来
 
-目前`redux-mutation`默认用法跟 `dva` 的 model 是很像的，因为公司前端项目用了阿里 [dva](https://github.com/dvajs/dva) 的 model 形式，本人也觉得这种用法挺不错。所以 `redux-mutation` 对外的用法目前是 `dva` 的 model 用法。
+之所以单独抽离阿里 [dva](https://github.com/dvajs/dva) model 的原因如下：
 
-`redux-mutation` 默认用法相当于 `dva` model 的抽离，本人也会向 `dva` 的 model 的用法进行兼容（当然 redux-saga 用法兼容不了）。
+- dva 官方并没有单独抽离 model 的用法，而是和其他框架逻辑耦合在一起。
+- dva model 不兼容原生 redux 原生写法的，用法需全部迁移
+
+
 
 ## 浏览器兼容性
 
