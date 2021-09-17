@@ -9,6 +9,8 @@ import mutations, {
   centersReducersFunctionTypeNamespace,
   delayTime,
   counterNamespace,
+  newMutation,
+  newCounterNamespace,
 } from './helper/mutaions';
 
 describe('createStore', () => {
@@ -49,7 +51,7 @@ describe('createStore', () => {
       'Expect the mutation namespace to be defined'
     );
     expect(() =>
-      store.replaceMutations({ namespace: 'test' })
+      store.replaceMutations({ namespace: 'test', initialState: {} })
     ).not.toThrowError();
   });
 
@@ -180,10 +182,11 @@ describe('createStore', () => {
     await delay(20);
     expect(store.getState()[counterNamespace]).toBe(3);
     // array
-    store.replaceMutations([replacedMutation]);
+    store.replaceMutations([replacedMutation, newMutation]);
     store.dispatch({ type: `${counterNamespace}/put_async` });
     await delay(20);
     expect(store.getState()[counterNamespace]).toBe(3 * 2);
+    expect(store.getState()[newCounterNamespace]).toBe(100);
     // array [function]
     store.replaceMutations([
       function() {

@@ -1,6 +1,7 @@
 export const delayTime = 200;
 // begin----counterMutation
 export const counterNamespace = 'counter';
+export const newCounterNamespace = 'newCounter';
 export const counterMutation = {
   namespace: counterNamespace,
   initialState: 0,
@@ -30,7 +31,7 @@ export const counterMutation = {
 };
 export const replacedMutation = {
   namespace: counterNamespace,
-  // replaceMutations中initialState无效，可以不定义
+  initialState: 0,
   reducers: {
     increment(state) {
       return state + 3;
@@ -41,6 +42,11 @@ export const replacedMutation = {
       await put({ type: 'increment' });
     },
   },
+};
+
+export const newMutation = {
+  namespace: newCounterNamespace,
+  initialState: 100,
 };
 
 export const functionTypeNamespace = 'functionTypeNamespace';
@@ -97,6 +103,7 @@ export const generatorMutation = {
 };
 export const replacedGeneratorMutation = {
   namespace: generatorNamespace,
+  initialState: 0,
   reducers: {
     increment(state) {
       return state + 2;

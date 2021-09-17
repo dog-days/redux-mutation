@@ -111,8 +111,6 @@ function createReplaceMutations(
         throw new TypeError('Expect the mutation namespace to be defined.');
       }
       mutationByNamespace[mutation.namespace] = mutation;
-      // replaceMutations initialState无效。
-      mutationByNamespace[mutation.namespace].initialState = null;
     });
     // 重新赋值
     newMutations = [];
