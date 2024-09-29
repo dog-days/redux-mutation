@@ -71,7 +71,7 @@
     "redux": "4.0.1",
     "redux-logger": "^3.0.6",
     "rimraf": "^2.6.2",
-    "rollup": "^0.66.6",
+    "rollup": "^2.79.2",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^3.4.0",
